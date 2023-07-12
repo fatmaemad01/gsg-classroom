@@ -18,7 +18,7 @@ class TopicFactory extends Factory
     {
         return [
             'name' => fake()->text(30),
-            'classroom_id' => 1,
+            'classroom_id' => 2,
         ];
     }
 }

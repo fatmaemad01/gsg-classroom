@@ -1,0 +1,39 @@
+:root {
+    --gray-color: #5f6368;
+    --red-color: #ff3050;
+    --blue-color: #4285f4;
+}
+
+body {
+    font-family: 'Roboto', 'sans-serif';
+}
+
+a{
+    color: #4285f4;
+    text-decoration: none;
+}
+.navbar {
+    background-color: #fff;
+    border-bottom: 0.7px solid #c8d0da;
+}
+
+.navbar .navbar-nav .nav-link {
+    color: #fff;
+}
+
+.navbar .fa-bars {
+    color: var(--gray-color);
+}
+
+.navbar .icons{
+    color: var(--gray-color);
+
+}
+
+.card .actions i {
+    color: var(--blue-color);
+}
+
+
+
+

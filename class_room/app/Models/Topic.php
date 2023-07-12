@@ -26,4 +26,6 @@ class Topic extends Model
 
     // this must be defined because we delete timestamps in topics table , true is the default. 
     public $timestamps = false;
+
+    protected $fillable = ['name','user_id','classroom_id'];
 }
