@@ -1,4 +1,6 @@
-@extends('layouts.layout')
+@extends('layouts.master')
+
+@section ('title' , 'Edit topic')
 
 @section('content')
 <div class="container mt-4">

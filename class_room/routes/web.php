@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClassroomsController;
 use App\Http\Controllers\TopicsController;
+use App\Models\Classroom;
 use App\Models\Topic;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
@@ -50,6 +51,7 @@ Route::group(
         'as' => 'classroom.',
     ],
     function () {
+
         Route::get('/', [ClassroomsController::class, 'index'])
             ->name('index');
 
@@ -60,8 +62,8 @@ Route::group(
             ->name('store');
 
         Route::get('{classroom}/', [ClassroomsController::class, 'show'])
-            ->name('show')
-            ->where('classroom', '[0-9]+');
+            ->name('show');
+            // ->where('classroom', '[0-9]+');
 
         Route::get('edit/{id}', [ClassroomsController::class, 'edit'])
             ->name('edit');
@@ -73,3 +75,16 @@ Route::group(
             ->name('destroy');
     }
 );
+
+// This will define all route from the given controller
+// Route::resource('/classrooms', ClassroomsController::class)
+//     ->names([
+//         'index' => 'classroom.index',
+//     ]);
+
+
+// we can define more than one resource at same function 
+// Route::resources([
+//     'topics' => TopicsController::class ,
+//     'classrooms' => ClassroomsController::class,
+// ]);

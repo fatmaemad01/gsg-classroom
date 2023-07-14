@@ -14,6 +14,11 @@ class Classroom extends Model
         'name' ,'section','subject','room','code','cover_image_path'
     ];
 
+    public function getRouteKey()
+    {
+        return 'id';
+    }
+
     // guarded used to define the column we don't need to insert by user , the best is don't use it 
     // protected $guarded = ['id' , 'updated_at'];
 }

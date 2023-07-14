@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Classroom;
 use App\Models\Topic;
+use App\Models\Classroom;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use PHPUnit\TextUI\Configuration\Merger;
 
 class ClassroomsController extends Controller
@@ -18,17 +22,8 @@ class ClassroomsController extends Controller
     {
 
         $classrooms = Classroom::orderBy('name', 'DESC')->get();
-        // dd($classroom);
-        // return redirect('/');
-        // return redirect()->route('home');
-        // return Redirect::route('home');
-        return view('classrooms.index', compact('classrooms'));
-
-        // return response: view, redirect, json-data, file, string
-        // return view('classrooms.index', [
-        //     'name' => 'Fatima ',
-        //     'title' => 'web developer',
-        // ]);
+        $success = session('success');
+        return view('classrooms.index', compact('classrooms', 'success'));
     }
 
     public function create()
@@ -38,43 +33,39 @@ class ClassroomsController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        // Method 1
-        // $classroom = new Classroom();
-        // $classroom->name = $request->post('name'); 
-        // $classroom->section = $request->post('section'); 
-        // $classroom->subject = $request->post('subject'); 
-        // $classroom->room = $request->post('room'); 
-        // $classroom->code = Str::random(8);
-        // $classroom->save();
 
-        // Method 2 : Mass assignment
+        // $data = $request->except('cover_img');
+        // $data['code'] = Str::random(8);
 
-        // $data = $request->all();
-        // $data ['code'] = Str::random(8);
+        // Way to upload images 
+        // if ($request->hasFile('cover_img')) {
+        // $file = $request->file('cover_img');
+        // $path = $file->store('/covers', 'public');  // path .. store at public disk
+        // $request->merge([
+        //     'cover_image_path' => $path,
+        // ]);
+
+        // another way to upload images
+        if ($request->hasFile('cover_img')) {
+            $file = $request->file('cover_img');
+            $request->merge(['cover_image_path' =>  $this->upload($file)]);
+        }
+
 
         $request->merge([
             'code' => Str::random(8),
         ]);
-        // First Mass way:
+
         $classroom = Classroom::create($request->all());
 
-        // Second Mass way:
-        // $classroom = new Classroom($request->all());
-        // $classroom->save();
-
-        // Third mass way
-        // $classroom = new Classroom();
-        // $classroom->fill($request->all())->save();
-        // $classroom->forceFill($request->all())->save();
-
-        return redirect()->route('classroom.index');
+        return redirect()->route('classroom.index')->with('success', $classroom->name.' Created Successfully.');
     }
 
-    public function show(string $id)
+    public function show($id)
     {
-        // $classroom = Classroom::where('id','=',$id)->first();
         $classroom = Classroom::findOrFail($id);
-        $topics = Topic::where('classroom_id', '=', $id)->get();
+
+        $topics = Topic::where('classroom_id', '=', $classroom->id)->get();
         return View::make('classrooms.show')
             ->with([
                 'id' => $id,
@@ -87,7 +78,6 @@ class ClassroomsController extends Controller
     {
         $classroom = Classroom::findOrFail($id);
         return view('classrooms.edit', [
-            'id' => $id,
             'classroom' => $classroom,
         ]);
     }
@@ -95,37 +85,49 @@ class ClassroomsController extends Controller
 
     public function update(Request $request, $id)
     {
+        $classroom = Classroom::find($id);
 
-        $classroom = Classroom::findOrFail($id);
-        // traditional way: 
-        // $classroom->name = $request->post('name');
-        // $classroom->section = $request->post('section');
-        // $classroom->subject = $request->post('subject');
-        // $classroom->room = $request->post('room');
-        // $classroom->save();
+        $data = $request->except('cover_img');
 
-        // Mass assignment
-        // first way
-        $classroom->update($request->all());
-        // second way
-        // $classroom->fill($request->all())->save();
+        $old_image = $classroom->cover_image_path;
 
-        return Redirect::route('classroom.index');
+        if ($request->hasFile('cover_img')) {
+            $file = $request->file('cover_img');
+            $data['cover_image_path'] = $this->upload($file);
+        }
+
+        $classroom->update($data);
+
+        if ($old_image && $old_image != $classroom->cover_image_path) {
+            Storage::disk('public')->delete($old_image);
+        }
+
+        return redirect()->route('classroom.index')->with('success', $classroom->name.' Updated Successfully.');
     }
 
     public function destroy($id)
     {
-        // first way
-        // Classroom::where('id','=',$id)->delete();
+        $classroom = Classroom::findOrFail($id);
+        $classroom->delete();
 
-        // second way
-        // $classroom = Classroom::find($id);
-        // $classroom->delete();
+        if ($classroom->cover_image_path) {
+            Storage::disk('public')->delete($classroom->cover_image_path);
+        }
 
-        // Third way
-        Classroom::destroy($id);
+        return redirect()->route('classroom.index')
+            ->with('success', 'Classroom deleted');
+    }
 
-        return redirect()->route('classroom.index');
-        
+
+    protected function upload(UploadedFile $file)
+    {
+        if ($file->isValid()) {
+            return $data['cover_image_path'] =
+                $file->store('covers', ['disk' => 'public']);
+        } else {
+            throw ValidationException::withMessages([
+                'cover_img' => 'File Corrupted',
+            ]);
+        }
     }
 }

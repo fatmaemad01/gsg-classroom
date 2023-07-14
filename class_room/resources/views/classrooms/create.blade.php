@@ -1,9 +1,11 @@
-@extends('layouts.layout')
+@extends('layouts.master')
+
+@section ('title' , 'Create Classroom ')
 
 @section('content')
     <div class="container mt-4">
         <h1 mb-3>Create Classrooms </h1>
-        <form action="{{route('classroom.store')}}" method="post">
+        <form action="{{route('classroom.store')}}" method="post" enctype="multipart/form-data">
             {{-- This is multi way to define the token 
                 
             <input type="hidden" name="_token" value="{{ csrf_token() }}">

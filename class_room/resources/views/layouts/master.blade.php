@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="{{asset('css/bootstrap.min.css')}}" />
     <link rel="stylesheet" href="{{asset('css/all.min.css')}}" />
     <link rel="stylesheet" href="{{asset('css/classroom.css')}}" />
-    <title>Classroom</title>
+    @stack('styles')
+    <title>@yield('title' , config('app.name'))</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@100;300;400;500;700;900&family=Work+Sans:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -35,11 +36,14 @@
     </nav>
 
     <div class="container">
+
         @yield('content')
     </div>
 
     <script src="{{asset('js/bootstrap.bundle.min.js')}}"></script>
     <script src="{{asset('js/all.min.js')}}"></script>
+
+    @stack('scripts')
 </body>
 
 </html>

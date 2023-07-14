@@ -1,10 +1,12 @@
-@extends('layouts.layout')
+@extends('layouts.master')
+
+@section ('title' , 'Edit Classroom')
 
 @section('content')
 
-<div class="container">
-    <h1>Edit Classroom # {{$id}} </h1>
-    <form action="{{route('classroom.update' , $classroom->id)}}" method="post">
+<div class="container p-5">
+    <h1 >Edit Classroom # {{$classroom->id}} </h1>
+    <form action="{{route('classroom.update' , $classroom->id)}}" method="post" enctype="multipart/form-data">
             @method('patch')
             @csrf
             <div class="form-floating mb-3">
