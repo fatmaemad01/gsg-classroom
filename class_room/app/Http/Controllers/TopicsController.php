@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TopicRequest;
 use App\Models\Classroom;
 use App\Models\Topic;
 use Illuminate\Http\RedirectResponse;
@@ -10,46 +11,46 @@ use Illuminate\Http\Request;
 class TopicsController extends Controller
 {
 
-    public function create($id)
+    public function create(Classroom $classroom)  // here i was pass $classroom object because i need to store topic dynamic
     {
-        $classroom = Classroom::FindOrFail($id);
         return view('topics.create', [
             'classroom' => $classroom,
+            'topic' => New Topic(),
         ]);
     }
 
-    public function store(Request $request, $id): RedirectResponse
+
+    public function store(TopicRequest $request, Classroom $classroom): RedirectResponse
     {
-        // $classroom = Classroom::FindOrFail($id)->first();
-        $classroom = Classroom::FindOrFail($id);
-        $topic = new Topic();
-        $topic->name = $request->post('name');
-        $topic->classroom_id = $classroom->id;
-        $topic->save();
+        $validated = $request->validated();
+
+        $validated ['classroom_id'] = $classroom->id;
+        $topic = Topic::create($validated);
 
         return redirect()->route('classroom.show', $classroom->id);
     }
 
 
-    public function edit($id)
+    public function edit(Topic $topic)
     {
-        $topic = Topic::FindOrFail($id);
         return view('topics.edit', [
             'topic' => $topic,
         ]);
     }
 
-    public function update(Request $request, $id)
+
+    public function update(TopicRequest $request, Topic $topic)
     {
-        $topic = Topic::findOrFail($id);
-        $topic->update($request->all());
+        $validated = $request->validated();
+
+        $topic->update($validated);
 
         return redirect()->route('classroom.show', $topic->classroom_id);
     }
 
-    public function destroy($id): RedirectResponse
+    
+    public function destroy(Topic $topic): RedirectResponse
     {
-        $topic = Topic::findOrFail($id);
         $topic->delete();
 
         return redirect()->route('classroom.show', $topic->classroom_id);

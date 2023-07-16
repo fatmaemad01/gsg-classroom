@@ -22,25 +22,26 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+
 Route::group(
     [
         'prefix' => 'topics/',
         'as' => 'topics.',
     ],
     function () {
-        Route::get('create/{id}', [TopicsController::class, 'create'])
+        Route::get('create/{classroom}', [TopicsController::class, 'create'])
             ->name('create');
 
-        Route::post('{id}', [TopicsController::class, 'store'])
+        Route::post('/{classroom}', [TopicsController::class, 'store'])
             ->name('store');
 
-        Route::get('edit/{id}', [TopicsController::class, 'edit'])
+        Route::get('edit/{topic}', [TopicsController::class, 'edit'])
             ->name('edit');
 
-        Route::put('{id}', [TopicsController::class, 'update'])
+        Route::put('{topic}', [TopicsController::class, 'update'])
             ->name('update');
 
-        Route::delete('{id}', [TopicsController::class, 'destroy'])
+        Route::delete('{topic}', [TopicsController::class, 'destroy'])
             ->name('destroy');
     }
 );
@@ -65,13 +66,13 @@ Route::group(
             ->name('show');
             // ->where('classroom', '[0-9]+');
 
-        Route::get('edit/{id}', [ClassroomsController::class, 'edit'])
+        Route::get('edit/{classroom}', [ClassroomsController::class, 'edit'])
             ->name('edit');
 
-        Route::patch('{id}', [ClassroomsController::class, 'update'])
+        Route::patch('{classroom}', [ClassroomsController::class, 'update'])
             ->name('update');
 
-        Route::delete('delete/{id}', [ClassroomsController::class, 'destroy'])
+        Route::delete('delete/{classroom}', [ClassroomsController::class, 'destroy'])
             ->name('destroy');
     }
 );

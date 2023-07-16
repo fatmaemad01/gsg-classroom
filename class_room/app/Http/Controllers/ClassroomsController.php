@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ClassroomRequest;
 use App\Models\Topic;
 use App\Models\Classroom;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\ValidationException;
 use PHPUnit\TextUI\Configuration\Merger;
+use Illuminate\Validation\ValidationException;
 
 class ClassroomsController extends Controller
 {
@@ -28,64 +30,75 @@ class ClassroomsController extends Controller
 
     public function create()
     {
-        return view()->make('classrooms.create');
+        return view()->make('classrooms.create', [
+            'classroom' => new Classroom(),
+        ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    
+    public function store(ClassroomRequest $request): RedirectResponse
     {
+        // $rules =             [
+        //     'code' => 'string',
+        //     'name' => 'required|string|min:3|max:255',
+        //     'section' => 'nullable|string|max:255',
+        //     'subject' => 'nullable|string|max:255',
+        //     'room' => 'nullable|string| max:255',
+        //     'cover_img' => [
+        //         'image',
+        //         'nullable',
+        //         Rule::dimensions([
+        //             'min_width' => 1400,
+        //             'min_height' => 1450,
+        //         ])
+        //     ],
+        // ];
 
-        // $data = $request->except('cover_img');
-        // $data['code'] = Str::random(8);
+        // $message = [
+        //     'required' => ':attribute Important',
+        //     'required.name' => 'Name field is required!'
+        // ];
+        // $validated = $request->validate($rules , $message);
 
-        // Way to upload images 
-        // if ($request->hasFile('cover_img')) {
-        // $file = $request->file('cover_img');
-        // $path = $file->store('/covers', 'public');  // path .. store at public disk
-        // $request->merge([
-        //     'cover_image_path' => $path,
-        // ]);
-
+        $validated = $request->validated();  // validated function from the custom request, the validation happen dynamic   
         // another way to upload images
         if ($request->hasFile('cover_img')) {
             $file = $request->file('cover_img');
-            $request->merge(['cover_image_path' =>  $this->upload($file)]);
+
+            $path = Classroom::uploadCoverImage($file);
+            $validated['cover_image_path'] = $path;
         }
+        $validated['code'] = Str::random(8);
 
+        $classroom = Classroom::create($validated);
 
-        $request->merge([
-            'code' => Str::random(8),
-        ]);
-
-        $classroom = Classroom::create($request->all());
-
-        return redirect()->route('classroom.index')->with('success', $classroom->name.' Created Successfully.');
+        return redirect()->route('classroom.index')->with('success', $classroom->name . ' Created Successfully.');
     }
 
-    public function show($id)
+    public function show(Classroom $classroom)
     {
-        $classroom = Classroom::findOrFail($id);
-
         $topics = Topic::where('classroom_id', '=', $classroom->id)->get();
         return View::make('classrooms.show')
             ->with([
-                'id' => $id,
+                // 'id' => $id,
                 'classroom' => $classroom,
                 'topics' => $topics,
             ]);
     }
 
-    public function edit($id)
+    public function edit(Classroom $classroom)
     {
-        $classroom = Classroom::findOrFail($id);
         return view('classrooms.edit', [
             'classroom' => $classroom,
         ]);
     }
 
 
-    public function update(Request $request, $id)
+    public function update(ClassroomRequest $request, Classroom $classroom)
     {
-        $classroom = Classroom::find($id);
+
+        $validated = $request->validated();
+
 
         $data = $request->except('cover_img');
 
@@ -93,41 +106,30 @@ class ClassroomsController extends Controller
 
         if ($request->hasFile('cover_img')) {
             $file = $request->file('cover_img');
-            $data['cover_image_path'] = $this->upload($file);
+
+            $path = Classroom::uploadCoverImage($file);
+            $validated['cover_image_path'] = $path;
         }
 
-        $classroom->update($data);
+        $classroom->update($validated);
 
         if ($old_image && $old_image != $classroom->cover_image_path) {
-            Storage::disk('public')->delete($old_image);
+            Classroom::deleteCoverImage($old_image);
         }
 
-        return redirect()->route('classroom.index')->with('success', $classroom->name.' Updated Successfully.');
+        return redirect()->route('classroom.index')->with('success', $classroom->name . ' Updated Successfully.');
     }
 
-    public function destroy($id)
+
+    public function destroy(Classroom $classroom)
     {
-        $classroom = Classroom::findOrFail($id);
         $classroom->delete();
 
         if ($classroom->cover_image_path) {
-            Storage::disk('public')->delete($classroom->cover_image_path);
+            Classroom::deleteCoverImage($classroom->cover_image_path);
         }
 
         return redirect()->route('classroom.index')
             ->with('success', 'Classroom deleted');
-    }
-
-
-    protected function upload(UploadedFile $file)
-    {
-        if ($file->isValid()) {
-            return $data['cover_image_path'] =
-                $file->store('covers', ['disk' => 'public']);
-        } else {
-            throw ValidationException::withMessages([
-                'cover_img' => 'File Corrupted',
-            ]);
-        }
     }
 }
