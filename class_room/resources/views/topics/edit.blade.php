@@ -1,16 +1,12 @@
-@extends('layouts.master')
+<x-main-layout title="Edit Topic">
+    <div class="container mt-4">
+        <h2 mb-3>Edit Topic </h2>
 
-@section ('title' , 'Edit topic')
+        <form action="{{route('topics.update' , $topic->id)}}" method="POST">
+            @method('put')
+            @include('topics._form' , [
+            'button' => 'Update Topic'])
+        </form>
 
-@section('content')
-<div class="container mt-4">
-    <h2 mb-3>Edit Topic </h2>
-
-    <form action="{{route('topics.update' , $topic->id)}}" method="POST">
-        @method('put')
-        @include('topics._form' , [
-        'button' => 'Update Topic'])
-    </form>
-
-</div>
-@endSection
+    </div>
+</x-main-layout>

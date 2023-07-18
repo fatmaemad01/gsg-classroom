@@ -117,7 +117,9 @@ class ClassroomsController extends Controller
             Classroom::deleteCoverImage($old_image);
         }
 
-        return redirect()->route('classroom.index')->with('success', $classroom->name . ' Updated Successfully.');
+        return redirect()->route('classroom.index')
+        ->with('success', $classroom->name . ' Updated Successfully.');
+        // ->with('error', $classroom->name . ' Test  Successfully.');
     }
 
 
