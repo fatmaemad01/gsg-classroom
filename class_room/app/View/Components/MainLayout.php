@@ -9,7 +9,7 @@ use Illuminate\View\Component;
 class MainLayout extends Component
 {
     // protected $title; // here we defined it protected so we shall pass it to the view
-    // public $title; if we need to define it public we don't need to pass it to the view
+    // public $title; if we need to define it public we don't need to pass it to the view but shall pass it to the construct
     /**
      * Create a new component instance.
      */

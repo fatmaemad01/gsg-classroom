@@ -31,6 +31,8 @@
                 </div>
                 <div class="col">
                     <div class="row-md-3">
+                        <h4>invitation link: </h4>
+                        <a href="{{$classroom->invitation_link}}">{{$invitation_link}}</a>
                         @foreach($topics as $topic)
                         <div class="card mt-3 p-3">
                             <h5 class="text-capitalize">{{$topic->name}}</h5>

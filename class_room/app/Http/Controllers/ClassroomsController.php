@@ -2,28 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ClassroomRequest;
+use Exception;
 use App\Models\Topic;
 use App\Models\Classroom;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use PhpParser\Node\Stmt\Return_;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\ClassroomRequest;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
 use PHPUnit\TextUI\Configuration\Merger;
+use App\Models\Scopes\UserClassroomScope;
 use Illuminate\Validation\ValidationException;
 
 class ClassroomsController extends Controller
 {
+
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    // }
+
     // Actions 
     public function index(Request $request)
     {
 
-        $classrooms = Classroom::orderBy('name', 'DESC')->get();
+        $classrooms = Classroom::status('active')
+            ->recent()
+            ->orderBy('created_at', 'DESC')
+            // ->withoutGlobalScope('user') here we can make this function to stop specific globalScope 
+            // ->withoutGlobalScopes() here we can make this function to stop all globalScope 
+            // ->withoutGlobalScope(UserClassroomScope::class) //here we can make this function to stop all globalScope 
+            ->get();
+
         $success = session('success');
         return view('classrooms.index', compact('classrooms', 'success'));
     }
@@ -35,55 +54,61 @@ class ClassroomsController extends Controller
         ]);
     }
 
-    
+
     public function store(ClassroomRequest $request): RedirectResponse
     {
-        // $rules =             [
-        //     'code' => 'string',
-        //     'name' => 'required|string|min:3|max:255',
-        //     'section' => 'nullable|string|max:255',
-        //     'subject' => 'nullable|string|max:255',
-        //     'room' => 'nullable|string| max:255',
-        //     'cover_img' => [
-        //         'image',
-        //         'nullable',
-        //         Rule::dimensions([
-        //             'min_width' => 1400,
-        //             'min_height' => 1450,
-        //         ])
-        //     ],
-        // ];
+        // validation
+        $validated = $request->validated();
 
-        // $message = [
-        //     'required' => ':attribute Important',
-        //     'required.name' => 'Name field is required!'
-        // ];
-        // $validated = $request->validate($rules , $message);
-
-        $validated = $request->validated();  // validated function from the custom request, the validation happen dynamic   
-        // another way to upload images
+        // upload image
         if ($request->hasFile('cover_img')) {
             $file = $request->file('cover_img');
 
             $path = Classroom::uploadCoverImage($file);
             $validated['cover_image_path'] = $path;
         }
+
+        // define the data that don't pass by request
         $validated['code'] = Str::random(8);
 
-        $classroom = Classroom::create($validated);
+        // $validated['user_id'] = Auth::user()->id;
+        // $request->user()->id;
+        $validated['user_id'] = Auth::id();
 
+        // this will stop auto commit يعني عمليات الداتا بيز بتكون غير معتمدة تلقائيا
+        DB::beginTransaction();
+
+        try {
+            $classroom = Classroom::create($validated);
+
+            // when any one create classroom be by default the teacher
+            $classroom->join(Auth::id(), 'teacher');
+            //   اذا تم تنفيذ كل العمليات بدون مشاكل يتم اعتمادها 
+            DB::commit();
+        } catch (Exception $e) {
+            // اذا حصلت مشاكل في الادخال بيصير عنا تراجع عن جميع العمليات
+            DB::rollBack();
+            return back()
+                ->with('error', $e->getMessage())
+                ->withInput();
+        }
         return redirect()->route('classroom.index')->with('success', $classroom->name . ' Created Successfully.');
     }
 
     public function show(Classroom $classroom)
     {
         $topics = Topic::where('classroom_id', '=', $classroom->id)->get();
-        return View::make('classrooms.show')
-            ->with([
-                // 'id' => $id,
-                'classroom' => $classroom,
-                'topics' => $topics,
-            ]);
+
+        $invitation_link = URL::signedRoute('classroom.join', [
+            'classroom' => $classroom->id,
+            'code' => $classroom->code,
+        ]);
+
+        return view('classrooms.show' , [
+            'topics' => $topics,
+            'classroom' => $classroom,
+            'invitation_link' => $invitation_link,
+        ]);
     }
 
     public function edit(Classroom $classroom)
@@ -118,7 +143,7 @@ class ClassroomsController extends Controller
         }
 
         return redirect()->route('classroom.index')
-        ->with('success', $classroom->name . ' Updated Successfully.');
+            ->with('success', $classroom->name . ' Updated Successfully.');
         // ->with('error', $classroom->name . ' Test  Successfully.');
     }
 
@@ -127,11 +152,44 @@ class ClassroomsController extends Controller
     {
         $classroom->delete();
 
-        if ($classroom->cover_image_path) {
-            Classroom::deleteCoverImage($classroom->cover_image_path);
-        }
+        // if ($classroom->cover_image_path) {
+        //     Classroom::deleteCoverImage($classroom->cover_image_path);
+        // }
 
         return redirect()->route('classroom.index')
             ->with('success', 'Classroom deleted');
+    }
+
+    public function trashed()
+    {
+        // orderby('created_at') = latest
+        $classrooms = Classroom::onlyTrashed()
+            ->latest('deleted_at')
+            ->get();
+
+        return view('classrooms.trashed', compact('classrooms'));
+    }
+
+    public function restore($id)
+    {
+        $classroom = Classroom::onlyTrashed()->findOrFail($id);
+        $classroom->restore();
+
+        return redirect()
+            ->route('classroom.index')
+            ->with('success', "Classroom $classroom->name Restored");
+    }
+
+    public function forceDelete($id)
+    {
+        $classroom = Classroom::withTrashed()->findOrFail($id);
+        $classroom->forceDelete();
+
+        $path  = $classroom->cover_image_path;
+        Classroom::deleteCoverImage($path);
+
+        return redirect()
+            ->route('classroom.trashed')
+            ->with('success', "Classroom $classroom->name Deleted forever!");
     }
 }

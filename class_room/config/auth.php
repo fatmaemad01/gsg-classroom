@@ -59,12 +59,14 @@ return [
     |
     */
 
+    // when we use model
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
 
+        // if we need to use database directly 
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
@@ -94,8 +96,8 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_reset_tokens',
-            'expire' => 60,
-            'throttle' => 60,
+            'expire' => 60,  // time in minute which the token will be able to request link 
+            'throttle' => 60,   // time in second which the user can request another link
         ],
     ],
 
@@ -110,6 +112,6 @@ return [
     |
     */
 
-    'password_timeout' => 10800,
+    'password_timeout' => 10800, // in seconds
 
 ];

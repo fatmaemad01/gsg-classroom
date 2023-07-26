@@ -53,6 +53,32 @@ class TopicsController extends Controller
     {
         $topic->delete();
 
-        return redirect()->route('classroom.show', $topic->classroom_id);
+        return redirect()->route('topics.trashed', $topic->classroom_id);
+    }
+
+
+    public function trashed()
+    {
+        $topics = Topic::onlyTrashed()->latest('deleted_at')->get();
+        return view('topics.trashed' , compact('topics'));
+
+    }
+
+    public function restore($id)
+    {
+        $topic = Topic::onlyTrashed()->findOrFail($id);
+        $topic->restore();
+
+        return redirect()->route('classroom.index')->with('success' , "Topic $topic->name Restored");
+    }
+
+    public function forceDelete($id)
+    {
+        $topic = Topic::onlyTrashed()->findOrFail($id);
+        $topic->forceDelete();
+
+        return redirect()->route('topics.trashed')->with('success' , "Topic $topic->name Deleted");
+
     }
 }
+

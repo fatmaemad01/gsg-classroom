@@ -29,6 +29,7 @@
                 <a href="{{route('classroom.create')}}" class="btn"><i class="fas fa-add fa-lg"></i></a>
                 <a href="{{route('classroom.index')}}" class="btn"><i class="fas fa-home fa-lg"></i></a>
                 <button class="btn">
+                    {{Auth::user()->name}}
                     <img src="{{asset('./img/pexels-masha-raymers-2726111.jpg')}}" alt="" height="35px" width="35px" style="border-radius: 50%" />
                 </button>
             </div>

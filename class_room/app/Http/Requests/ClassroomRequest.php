@@ -20,6 +20,7 @@ class ClassroomRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
+    
     public function rules(): array
     {
         return [
@@ -32,8 +33,8 @@ class ClassroomRequest extends FormRequest
                 'image',
                 'nullable',
                 Rule::dimensions([
-                    'min_width' => 600,
-                    'min_height' => 250,
+                    'min_width' => 300,
+                    'min_height' => 100,
                 ])
             ],
 

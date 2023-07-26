@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Topic extends Model
 {
-    use HasFactory;
+    use HasFactory , SoftDeletes;
 
     // default things when we use the standard names .. it's just for knowledge
     const CREATED_AT = 'created_at';
