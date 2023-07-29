@@ -68,12 +68,12 @@ class ClassroomsController extends Controller
             $validated['cover_image_path'] = $path;
         }
 
-        // define the data that don't pass by request
-        $validated['code'] = Str::random(8);
+        // define the data that don't pass by request 
+        // $validated['code'] = Str::random(8);  // this code we apply it auto by model event & listener
 
         // $validated['user_id'] = Auth::user()->id;
         // $request->user()->id;
-        $validated['user_id'] = Auth::id();
+        // $validated['user_id'] = Auth::id();   // this code we apply it auto by model event & listener
 
         // this will stop auto commit يعني عمليات الداتا بيز بتكون غير معتمدة تلقائيا
         DB::beginTransaction();
@@ -160,6 +160,7 @@ class ClassroomsController extends Controller
             ->with('success', 'Classroom deleted');
     }
 
+
     public function trashed()
     {
         // orderby('created_at') = latest
@@ -169,6 +170,7 @@ class ClassroomsController extends Controller
 
         return view('classrooms.trashed', compact('classrooms'));
     }
+
 
     public function restore($id)
     {
@@ -180,13 +182,14 @@ class ClassroomsController extends Controller
             ->with('success', "Classroom $classroom->name Restored");
     }
 
+
     public function forceDelete($id)
     {
         $classroom = Classroom::withTrashed()->findOrFail($id);
         $classroom->forceDelete();
 
-        $path  = $classroom->cover_image_path;
-        Classroom::deleteCoverImage($path);
+        // $path  = $classroom->cover_image_path;
+        // Classroom::deleteCoverImage($path);
 
         return redirect()
             ->route('classroom.trashed')

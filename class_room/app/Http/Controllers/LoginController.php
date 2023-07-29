@@ -40,7 +40,7 @@ class LoginController extends Controller
 
         // intended used to redirect user to the page he request before login , 
         if($result){
-            return redirect()->intended(route('classroom.index'));
+            return redirect()->route('classroom.index');
         }
         return back()->withInput()->withErrors([
             'email' => 'Invalid credentials.',

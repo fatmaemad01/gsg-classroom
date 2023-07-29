@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Scopes\UserClassroomScope;
+use App\Observers\ClassroomObserver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use NunoMaduro\Collision\Adapters\Phpunit\State;
@@ -44,23 +45,12 @@ class Classroom extends Model
 
     public static function deleteCoverImage($path)
     {
-        if (!$path || Storage::disk(Classroom::$disk)->exists($path)) {
+        if (!$path || !Storage::disk(Classroom::$disk)->exists($path)) {
             return;
         }
         return Storage::disk(Classroom::$disk)->delete($path);
     }
 
-
-    // public function getCoverImagePathAttribute()
-    // {
-    //     if (!$this->cover_img) {
-    //         return asset('./img/1.jpg');
-    //     }
-    //     if (Str::startsWith($this->cover_img, ['http://', 'https://'])) {
-    //         return $this->cover_img;
-    //     }
-    //     return Storage::disk('public')->url('covers/'.$this->cover_image_path);
-    // }
 
     // local scopes => call when i need it 
     public function scopeActive(Builder $query)
@@ -89,16 +79,62 @@ class Classroom extends Model
         //     $query->where('user_id', '=' , Auth::id());
         // }); 
         static::addGlobalScope(new UserClassroomScope);
+
+        static::observe(ClassroomObserver::class);
+        // Creating , Created, Updating, Updated, Saving, Saved
+        // Deleting, Deleted, Restoring, Restored, ForceDeleting, ForceDeleted
+        // Retrieved
+        // static::creating(function (Classroom $classroom) {
+        //     $classroom->code = Str::random(8);
+        //     $classroom->user_id = Auth::id();
+        // });
+
+        // static::forceDeleted(function(Classroom $classroom){
+        //     static::deleteCoverImage($classroom->cover_image_path);
+        // });
+
+        // static::deleted(function(Classroom $classroom){
+        //     $classroom->status = 'deleted';
+        //     $classroom->save();
+        // });
+
+        // static::restored(function(Classroom $classroom){
+        //     $classroom->status = 'active';
+        //     $classroom->save();
+
+        // });
     }
 
-    public function join($user_id , $role = 'student')
+    public function join($user_id, $role = 'student')
     {
         DB::table('classroom_user')
-        ->insert([
-            'classroom_id' => $this->id,
-            'user_id' => $user_id,
-            'role' => $role,
-            'created_at' => now(),
-        ]);
+            ->insert([
+                'classroom_id' => $this->id,
+                'user_id' => $user_id,
+                'role' => $role,
+                'created_at' => now(),
+            ]);
+    }
+
+
+    // Accessor => get(AttributeName)Attribute
+    public function getNameAttribute($value)
+    {
+        return strtoupper($value);
+    }
+
+
+    // $classroom->cover_image_url
+    // public function getCoverImageUrlAttribute($value)
+    // {
+    //     if ($this->cover_image_path) {
+    //         return Storage::disk(static::$disk)->url($this->cover_image_path);
+    //     }
+    //     return asset('./img/1.jpg');
+    // }
+
+    public function getUrlAttribute()
+    {
+        return route('classroom.show', $this->id);
     }
 }

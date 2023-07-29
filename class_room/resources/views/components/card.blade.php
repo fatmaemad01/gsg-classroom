@@ -1,5 +1,5 @@
 @props([
-'name' , 'section', 'subject' ,'room', 'id' ,'cover_image_path'
+'name' , 'section', 'subject' ,'room', 'id' ,'cover_image_path' , 'show'
 ])
 <div class="col-md-3 me-4 mt-3 p-0 card" style="width: 23rem">
     @if($cover_image_path)
@@ -11,7 +11,7 @@
         <h5 class="card-title ps-1">{{$name}}</h5>
         <p class="card-text ps-1">{{ $section}}, {{ $subject}}</p>
         <div class="actions d-flex justify-content-end">
-            <a href="{{route('classroom.show' , $id)}}" class="btn"><i class="fa-solid fa-eye pe-2"></i></a>
+            <a href="{{$show}}" class="btn"><i class="fa-solid fa-eye pe-2"></i></a>
             <a href="{{route('classroom.edit' , $id)}}" class="btn"><i class="fa-regular fa-pen-to-square pe-2"></i></a>
             <x-delete name="classroom.destroy" :id="$id" />
         </div>

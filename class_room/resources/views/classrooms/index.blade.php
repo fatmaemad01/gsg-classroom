@@ -19,7 +19,7 @@
             <div class="classrooms m-3">
                 <div class="row ms-3">
                     @foreach($classrooms as $classroom)
-                    <x-card :name="$classroom->name" :id="$classroom->id" :section="$classroom->section" :subject="$classroom->subject" :room="$classroom->room" :cover_image_path="$classroom->cover_image_path" />
+                    <x-card :show="$classroom->url" :name="$classroom->name" :id="$classroom->id" :section="$classroom->section" :subject="$classroom->subject" :room="$classroom->room" :cover_image_path="$classroom->cover_image_path" />
                     @endforeach
                 </div>
             </div>
