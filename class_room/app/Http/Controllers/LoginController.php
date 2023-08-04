@@ -25,22 +25,14 @@ class LoginController extends Controller
         $credentials = [
             'email'=> $request->email,
             'password'=> $request->password,
-            // 'status' => 'active' ,
         ];
 
         $result  = Auth::attempt($credentials , $request->boolean('remember'));
         
         $user = User::where('email', '=', $request->email)->first();
 
-        // if($user && Hash::check($request->password , $user->password)){
-        //     // user authenticated
-        //     Auth::login($user , $request->boolean('remember'));
-        //     return redirect()->route('classroom.index');
-        // }
-
-        // intended used to redirect user to the page he request before login , 
         if($result){
-            return redirect()->route('classroom.index');
+            return redirect()->intended('classroom.index');
         }
         return back()->withInput()->withErrors([
             'email' => 'Invalid credentials.',

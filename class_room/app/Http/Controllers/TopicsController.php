@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class TopicsController extends Controller
 {
 
-    public function create(Classroom $classroom)  // here i was pass $classroom object because i need to store topic dynamic
+    public function create(Classroom $classroom)  
     {
         return view('topics.create', [
             'classroom' => $classroom,
@@ -57,28 +57,28 @@ class TopicsController extends Controller
     }
 
 
-    public function trashed()
-    {
-        $topics = Topic::onlyTrashed()->latest('deleted_at')->get();
-        return view('topics.trashed' , compact('topics'));
+    // public function trashed()
+    // {
+    //     $topics = Topic::onlyTrashed()->latest('deleted_at')->get();
+    //     return view('topics.trashed' , compact('topics'));
 
-    }
+    // }
 
-    public function restore($id)
-    {
-        $topic = Topic::onlyTrashed()->findOrFail($id);
-        $topic->restore();
+    // public function restore($id)
+    // {
+    //     $topic = Topic::onlyTrashed()->findOrFail($id);
+    //     $topic->restore();
 
-        return redirect()->route('classroom.index')->with('success' , "Topic $topic->name Restored");
-    }
+    //     return redirect()->route('classroom.index')->with('success' , "Topic $topic->name Restored");
+    // }
 
-    public function forceDelete($id)
-    {
-        $topic = Topic::onlyTrashed()->findOrFail($id);
-        $topic->forceDelete();
+    // public function forceDelete($id)
+    // {
+    //     $topic = Topic::onlyTrashed()->findOrFail($id);
+    //     $topic->forceDelete();
 
-        return redirect()->route('topics.trashed')->with('success' , "Topic $topic->name Deleted");
+    //     return redirect()->route('topics.trashed')->with('success' , "Topic $topic->name Deleted");
 
-    }
+    // }
 }
 

@@ -29,7 +29,6 @@ class JoinClassroomController extends Controller
             return redirect()->route('classrooms.show', $id);
         }
 
-
         return view('classrooms.join', compact('classroom'));
     }
 
@@ -43,22 +42,22 @@ class JoinClassroomController extends Controller
         $classroom = Classroom::withoutGlobalScope(UserClassroomScope::class)
             ->active()
             ->findOrFail($id);
+            
         try {
             $this->exists($id, Auth::id());
         } catch (Exception $e) {
             return redirect()->route('classroom.show', $id);
         }
 
-        $classroom->join(Auth::id() , 'student');
-        
-        return redirect()->route('classroom.show', $id);
+        $classroom->join(Auth::id(), 'student');
 
+        return redirect()->route('classroom.show', $id);
     }
 
 
     protected function exists($classroom_id, $user_id)
     {
-        $exists =  DB::table('classroom_user')
+        $exists = DB::table('classroom_user')
             ->where('classroom_id', $classroom_id)
             ->where('user_id', $user_id)
             ->exists();

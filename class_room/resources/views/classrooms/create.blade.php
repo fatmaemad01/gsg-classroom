@@ -1,4 +1,5 @@
 <x-main-layout title="Create Classroom">
+    <x-nav />
     <div class="container p-5">
         <h1 mb-3>Create Classrooms </h1>
 

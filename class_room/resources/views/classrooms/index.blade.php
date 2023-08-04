@@ -1,4 +1,5 @@
 <x-main-layout title="Classrooms">
+<x-nav />
 
     <x-alert name="success" id="success" class="alert-success" />
 
@@ -15,12 +16,21 @@
                 <a href="#" class="ps-1">Calender</a>
             </div>
         </div>
+
         <div class="container">
             <div class="classrooms m-3">
                 <div class="row ms-3">
                     @foreach($classrooms as $classroom)
-                    <x-card :show="$classroom->url" :name="$classroom->name" :id="$classroom->id" :section="$classroom->section" :subject="$classroom->subject" :room="$classroom->room" :cover_image_path="$classroom->cover_image_path" />
-                    @endforeach
+                    <x-card
+                        :show="$classroom->url"
+                        :name="$classroom->name"
+                        :id="$classroom->id"
+                        :section="$classroom->section"
+                        :subject="$classroom->subject"
+                        :room="$classroom->room"
+                        :cover_image_path="$classroom->cover_image_path" 
+/>  
+                  @endforeach
                 </div>
             </div>
         </div>

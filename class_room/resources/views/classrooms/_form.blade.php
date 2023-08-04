@@ -18,7 +18,7 @@
 
 <x-form.form-floating name="cover_img" placeholder="Cover Image">
     @if($classroom->cover_image_path)
-    <img src="{{ asset('storage/' . $classroom->cover_image_path) }}" class="card-img-top" alt="...">
+    <img src="{{ asset('storage/' . $classroom->cover_image_path) }}" class="card-img-top" alt="..." height="160px">
     @endif
     <x-form.input type="file" name="cover_img" :value="$classroom->cover_img" placeholder="Cover Image" />
 </x-form.form-floating>

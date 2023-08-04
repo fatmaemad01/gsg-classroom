@@ -1,4 +1,5 @@
 <x-main-layout title="Trashed Classrooms">
+<x-nav />
 
     <x-alert name="success" id="success" class="alert-success" />
 

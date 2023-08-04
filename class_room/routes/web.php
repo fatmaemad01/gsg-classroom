@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClassroomsController;
+use App\Http\Controllers\ClassworkController;
 use App\Http\Controllers\JoinClassroomController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\TopicsController;
@@ -55,7 +56,7 @@ Route::group(
         Route::delete('trashed/{classroom}',  'forceDelete')
             ->name('forceDelete');
 
-        Route::get('create/{classroom}' ,'create')
+        Route::get('create/{classroom}', 'create')
             ->name('create');
 
         Route::post('/{classroom}',  'store')
@@ -121,14 +122,16 @@ Route::group(
         'middleware' => 'auth'
     ],
     function () {
-        Route::get('{classroom}/join' , 'create')
-        ->middleware('signed')
-        ->name('join');
+        Route::get('{classroom}/join', 'create')
+            ->middleware('signed')
+            ->name('join');
 
-        Route::post('{classroom}/join' ,'store');
+        Route::post('{classroom}/join', 'store');
     }
 );
 
+
+Route::resource('classrooms.classworks', ClassworkController::class);
 
 Route::get('/', function () {
     return view('welcome');

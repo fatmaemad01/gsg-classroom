@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use NunoMaduro\Collision\Adapters\Phpunit\State;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Classroom extends Model
 {
@@ -21,19 +22,16 @@ class Classroom extends Model
 
     public static string $disk = 'public';
 
-    //  fillable used to define the column we need to insert by user 
     protected $fillable = [
         'name', 'section', 'subject', 'room', 'code', 'cover_image_path', 'user_id'
     ];
 
 
-    // guarded used to define the column we don't need to insert by user , the best is don't use it 
-    // protected $guarded = ['id' , 'updated_at'];
-
     public function getRouteKey()
     {
         return 'id';
     }
+
 
     public static function uploadCoverImage($file)
     {
@@ -52,7 +50,7 @@ class Classroom extends Model
     }
 
 
-    // local scopes => call when i need it 
+    // local scopes
     public function scopeActive(Builder $query)
     {
         $query->where('status', '=', 'active');
@@ -70,40 +68,25 @@ class Classroom extends Model
     }
 
 
-    // Global Scope => defined to apply action to all model in dynamic
-
-    // booted function use to define function that will applied when model has initialize 
     protected static function booted()
     {
-        // static::addGlobalScope('user' , function(Builder $query){
-        //     $query->where('user_id', '=' , Auth::id());
-        // }); 
         static::addGlobalScope(new UserClassroomScope);
 
         static::observe(ClassroomObserver::class);
-        // Creating , Created, Updating, Updated, Saving, Saved
-        // Deleting, Deleted, Restoring, Restored, ForceDeleting, ForceDeleted
-        // Retrieved
-        // static::creating(function (Classroom $classroom) {
-        //     $classroom->code = Str::random(8);
-        //     $classroom->user_id = Auth::id();
-        // });
-
-        // static::forceDeleted(function(Classroom $classroom){
-        //     static::deleteCoverImage($classroom->cover_image_path);
-        // });
-
-        // static::deleted(function(Classroom $classroom){
-        //     $classroom->status = 'deleted';
-        //     $classroom->save();
-        // });
-
-        // static::restored(function(Classroom $classroom){
-        //     $classroom->status = 'active';
-        //     $classroom->save();
-
-        // });
     }
+
+    // relations
+    public function classworks(): HasMany
+    {
+        // classroom_id , id => optional, laravel suppose it by default
+        return $this->hasMany(Classwork::class, 'classroom_id', 'id');
+    }
+
+    public function topics(): HasMany
+    {
+        return $this->hasMany(Topic::class, 'classroom_id', 'id');
+    }
+
 
     public function join($user_id, $role = 'student')
     {
@@ -117,15 +100,24 @@ class Classroom extends Model
     }
 
 
-    // Accessor => get(AttributeName)Attribute
+    // Accessor 
     public function getNameAttribute($value)
     {
         return strtoupper($value);
     }
 
+    public function getSectionAttribute($value)
+    {
+        return strtoupper($value);
+    }
+    
+    public function getSubjectAttribute($value)
+    {
+        return strtoupper($value);
+    }
 
     // $classroom->cover_image_url
-    // public function getCoverImageUrlAttribute($value)
+    // public function getCoverImageUrlAttribute()
     // {
     //     if ($this->cover_image_path) {
     //         return Storage::disk(static::$disk)->url($this->cover_image_path);

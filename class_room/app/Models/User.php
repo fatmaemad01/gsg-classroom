@@ -46,21 +46,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'password' => 'hashed',
     ];
 
-    // Mutators => set(AttributeName)Attribute
-    public function setEmailAttribute($value)
-    {
-        $this->attributes['email'] = ucfirst($value);
-    }
 
     // here we define set & get in the same method
-    // protected function email()
-    // {
-    //     return Attribute::make(
-    //         get: fn($value) => strtoupper($value),
-    //         set: fn($value) => strtolower($value)
-    //     );
-    // }
-
-
+    protected function email() : Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) => strtoupper($value),
+            set: fn(string $value) => strtolower($value)
+        );
+    }
     
 }
