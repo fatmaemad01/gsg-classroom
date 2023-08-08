@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Post;
 use App\Models\Topic;
 use App\Models\Classroom;
 use Illuminate\Support\Str;
@@ -31,13 +32,13 @@ class ClassroomsController extends Controller
 
         $classrooms = Classroom::status('active')
             ->recent()
-            ->orderBy('created_at', 'DESC')
             ->get();
 
         $success = session('success');
         return view('classrooms.index', compact('classrooms', 'success'));
     }
 
+    
     public function create()
     {
         return view()->make('classrooms.create', [
@@ -76,21 +77,30 @@ class ClassroomsController extends Controller
         return redirect()->route('classroom.index')->with('success', $classroom->name . ' Created Successfully.');
     }
 
-    public function show(Classroom $classroom)
+
+    public function show(Classroom $classroom , Post $post)
     {
-        $topics = Topic::where('classroom_id', '=', $classroom->id)->get();
+        $classworks = $classroom->classworks;
+        
+        $posts  = $classroom->posts;
+
+        $post->load('comments.user');
 
         $invitation_link = URL::signedRoute('classroom.join', [
             'classroom' => $classroom->id,
             'code' => $classroom->code,
+            
         ]);
 
         return view('classrooms.show' , [
-            'topics' => $topics,
+            'classworks' => $classworks,
             'classroom' => $classroom,
             'invitation_link' => $invitation_link,
+            'posts' => $posts , 
+            'post' => $post , 
         ]);
     }
+
 
     public function edit(Classroom $classroom)
     {

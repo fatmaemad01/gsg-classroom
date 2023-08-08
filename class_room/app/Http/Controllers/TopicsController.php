@@ -10,12 +10,18 @@ use Illuminate\Http\Request;
 
 class TopicsController extends Controller
 {
+    // public function index(Classroom $classroom , Topic $topic)
+    // {
+    //     $classworks = $topic->classworks;
 
-    public function create(Classroom $classroom)  
+    //     return view('topics.index' , compact('classworks' , 'classroom'));
+    // }
+
+    public function create(Classroom $classroom)
     {
         return view('topics.create', [
             'classroom' => $classroom,
-            'topic' => New Topic(),
+            'topic' => new Topic(),
         ]);
     }
 
@@ -24,7 +30,7 @@ class TopicsController extends Controller
     {
         $validated = $request->validated();
 
-        $validated ['classroom_id'] = $classroom->id;
+        $validated['classroom_id'] = $classroom->id;
         $topic = Topic::create($validated);
 
         return redirect()->route('classroom.show', $classroom->id);
@@ -48,7 +54,7 @@ class TopicsController extends Controller
         return redirect()->route('classroom.show', $topic->classroom_id);
     }
 
-    
+
     public function destroy(Topic $topic): RedirectResponse
     {
         $topic->delete();
@@ -81,4 +87,3 @@ class TopicsController extends Controller
 
     // }
 }
-

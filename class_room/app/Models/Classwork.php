@@ -36,4 +36,16 @@ class Classwork extends Model
     }
 
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class)
+        ->withPivot(['grade' , 'submitted_at' , 'status' , 'created_at'])
+        ->using(ClassworkUser::class); // to define the model of the pivot table
+    }
+
+    
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable')  ;
+    }
 }

@@ -13,12 +13,14 @@
                 </div>
                 <div class="head d-flex justify-content-between ">
                     <h1 class="mb-3  position-absolute text-white" style="top: 300px; left: 230px;">{{$classroom ->name}} </h1>
+
+                    <h3 class="mb-3  position-absolute " style="top: 143px; right: 158px;"><a href="{{route('classroom.edit' , $classroom->id)}} " class="text-white"><i class="fas fa-gear"></i></a></h3>
                 </div>
 
                 <div class="row">
                     <div class="col-md-2 mt-3">
                         <div class="new mt-3 ">
-                            <a href="{{route('topics.create' , $classroom->id )}}" style="width: 100%;" class="btn btn-primary ">Add Topics</a>
+                            <a href="{{route('topics.create' , $classroom->id )}}" style="width: 100%;" class="btn btn-success ">Add Topics</a>
                         </div>
 
                         <div class="card mt-3 p-3 ">
@@ -42,31 +44,145 @@
                     </div>
                     <div class="col">
                         <div class="row-md-3">
-                            <div class="shadow p-3 mb-5 bg-body rounded mt-5 p-3" style="height: 80px;">
+                            <div class="shadow p-3 mb-5 bg-body rounded mt-5 p-3" id="initialDiv" style="height: 80px;">
                                 <div class="actions d-flex justify-content-between">
                                     <div class="d-flex justify-content-start ">
                                         <img src="{{asset('./img/pexels-masha-raymers-2726111.jpg')}}" class="me-4 ms-3" alt="" height="42px" width="42px" style="border-radius: 50%" />
                                         <p class="pt-3" style="font-size: 14px; color:#b1b1b1">Announce something to your class</p>
                                     </div>
+                                    <a href="#" class="btn" onclick="toggleForm()">
+                                        <i class="fa-solid fa-right-left pt-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div id="commentForm" class="hidden-form shadow p-4 mb-5 bg-body rounded mt-5 p-3 d-none justify-content-start">
+                                <div class="row-12">
+                                    <form action="{{route('posts.store' , $classroom->id)}}" method="post" class="hidden-form d-flex justify-content-start">
+                                        @csrf
+                                        <div class="col-9">
+                                            <x-form.form-floating name="content" placeholder="Announce something to your class">
+                                                <x-form.textarea name="content" placeholder="Announce something to your class">
+                                                </x-form.textarea>
+                                            </x-form.form-floating>
+                                        </div>
+                                        <div class="col-3 ms-3">
+                                            <div class="dropdown">
+                                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    All Students
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                                    @foreach($classroom->students as $student)
+                                                    <li class="dropdown-item">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" name="students[]" type="checkbox" value="{{$student->id}}" id="std--{{$student->id}}" checked>
+                                                            <label class="form-check-label" for="std--{{$student->id}}">
+                                                                {{$student->name}}
+                                                            </label>
+                                                        </div>
+                                                    </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                            <button type="submit" class="btn btn-success mt-3">Post</button>
+                                        </div>
+                                    </form>
+                                </div>
 
-                                    <a href="" class=" btn "><i class="fa-solid fa-right-left pt-2"></i></i></a>
+                            </div>
+
+                            @forelse($posts as $post)
+                            <div class="card p-4 mt-4">
+                                <div class=" d-flex justify-content-start">
+                                    <div>
+                                        <i class="fas fa-file-lines mt-2 me-4 ms-2 text-success" style="font-size: 26px;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold text-dark"> {{$post->user->name}} posted new post : {{$post->content}}
+                                            <p style="font-size: 14px;" class="text-secondary fw-normal mt-2">{{$post->created_at->format('F j, Y')}}
+                                            </p>
+                                        </h6>
+                                    </div>
+
+                                </div>
+                                <form action="{{route('posts.destroy' , [ $classroom->id , $post->id])}}" method="post" class=" d-flex justify-content-end">
+                                    @csrf
+                                    @method('delete')
+                                    <button type="submit" class="btn">
+                                        <i class="fas fa-trash mt-2 me-4 ms-2 text-danger" style="font-size: 20px;"></i>
+                                    </button>
+                                </form>
+
+
+                                <hr class="text-secondary">
+                                <div class="accordion accordion-flush" id="accordionFlushExample">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="flush-headingOne">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                                                Post Comments
+                                            </button>
+                                        </h2>
+                                        <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                            <div class="accordion-body">
+                                                @foreach ($post->comments as $comment)
+                                                <div class="row">
+                                                    <div class="col-lg-1">
+                                                        <img src="https://ui-avatars.com/api/?name={{$comment->user->name}}" class="mt-2" alt="" height="35px" width="35px" style="border-radius: 50%" />
+                                                    </div>
+                                                    <div class="col-lg-10">
+                                                        <!-- Carbon Package to date formats  -->
+                                                        <p style="margin-bottom: 5px;"><span class="text-secondary fw-bold me-3"> {{ $comment->user->name }}</span> <span class="fw-light" style="font-size: 14px;"> {{$comment->created_at->format('H:i')}}</span></p>
+                                                        <p class="fw-normal" style="font-size: 15px;">{{ $comment->content }}</p>
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                                <div class="comments">
+                                                    <form action="{{route('comments.store' )}}" method="post" class="d-flex justify-content-start">
+                                                        <div class="col-lg-11">
+                                                            @csrf
+                                                            <input type="hidden" name="id" value="{{$post->id}}">
+                                                            <input type="hidden" name="type" value="post">
+                                                            <x-form.form-floating name="content" placeholder="Add a class comment">
+                                                                <x-form.input name="content" placeholder="Add a class comment">
+                                                                </x-form.input>
+                                                            </x-form.form-floating>
+                                                        </div>
+                                                        <div class="col-lg-1 m-4">
+                                                            <button type="submit" style="position: relative; top: -5px" class="btn btn-success"><i class="fas fa-paper-plane"></i></button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            @foreach($topics as $topic)
-                            <div class="shadow  p-3 mb-5 bg-body rounded mt-5 p-3 ">
-                                <div class="title p-3">
-                                    <h5 class="text-capitalize">{{$topic->name}}
-                                        <a href="{{route('topics.edit' , $topic->id)}}" class=" btn d-flex justify-content-end ">
-                                            <i class="fa-regular fa-pen-to-square pb-2"></i>
-                                        </a>
-                                    </h5>
-                                </div>
-                            </div>
-                            @endforeach
+
+                            @empty
+                            @endforelse
                         </div>
+                        @foreach($classworks as $classwork)
+                        <a href="{{route('classrooms.classworks.show' , [$classroom->id , $classwork->id ])}}">
+                            <div class="card p-4 mt-4">
+                                <div class="d-flex justify-content-start">
+                                    <div>
+                                        <i class="fas fa-file-lines mt-2 me-4 ms-2 text-success" style="font-size: 26px;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold text-dark"> {{$classroom->teachers->first()->name}} posted new {{$classwork->type}}: {{$classwork->title}}
+                                            <p style="font-size: 14px;" class="text-secondary fw-normal mt-2">{{$classwork->created_at->format('F j, Y')}}
+                                                @if($classwork->updated_at)
+                                                (Edited {{$classwork->updated_at->format('F j')}} )
+                                                @endif
+                                            </p>
+                                        </h6>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </a>
+                        @endforeach
                     </div>
                 </div>
-
             </div>
         </div>
         @push('scripts')
@@ -82,7 +198,14 @@
                 tempInput.select();
                 document.execCommand('copy');
                 document.body.removeChild(tempInput);
+            }
 
+            function toggleForm() {
+                var form = document.getElementById('commentForm');
+                form.classList.toggle('d-none'); // Toggle the 'd-none' class
+
+                var initialDiv = document.getElementById('initialDiv');
+                initialDiv.classList.toggle('d-none');
             }
         </script>
         @endpush

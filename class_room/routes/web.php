@@ -1,13 +1,17 @@
 <?php
 
+use App\Http\Controllers\ClassroomPeopleController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClassroomsController;
 use App\Http\Controllers\ClassworkController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\JoinClassroomController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\TopicsController;
 use App\Models\Classroom;
+use App\Models\Comment;
 use App\Models\Topic;
 use PHPUnit\Framework\Attributes\Group;
 /*
@@ -56,6 +60,9 @@ Route::group(
         Route::delete('trashed/{classroom}',  'forceDelete')
             ->name('forceDelete');
 
+        // Route::get('topics/{topic}', 'index')
+        //     ->name('index');
+            
         Route::get('create/{classroom}', 'create')
             ->name('create');
 
@@ -72,6 +79,22 @@ Route::group(
             ->name('destroy');
     }
 );
+
+Route::get('/classrooms/{classroom}/people',  [ClassroomPeopleController::class, 'index'])
+    ->name('classroom.people');
+
+Route::delete('/classrooms/{classroom}/people',  [ClassroomPeopleController::class, 'destroy'])
+    ->name('classroom.people.destroy');
+
+
+Route::post('comments', [CommentController::class, 'store'])
+    ->name('comments.store');
+
+Route::post('posts/{classroom}/', [PostController::class, 'store'])
+    ->name('posts.store');
+
+Route::delete('destroy/{classroom}/{post}', [PostController::class, 'destroy'])
+    ->name('posts.destroy');
 
 Route::group(
     [

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Classroom;
 use App\Models\Classwork;
+use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class ClassworkController extends Controller
@@ -13,12 +15,12 @@ class ClassworkController extends Controller
     public function index(Request $request, Classroom $classroom)
     {
         $classworks = $classroom->classworks()
-        ->with('topic') // Eager load
-        ->orderBy('published_at', 'DESC')
-        ->get();
+            ->with('topic') // Eager load
+            ->orderBy('published_at', 'DESC')
+            ->get();
 
         $type = $this->getType($request);
-        
+
         return view('classworks.index', [
             'classroom' => $classroom,
             'classworks' => $classworks->groupBy('topic_id'),
@@ -27,14 +29,14 @@ class ClassworkController extends Controller
     }
 
 
-    public function create(Request $request ,Classroom $classroom)
+    public function create(Request $request, Classroom $classroom)
     {
         $type = $this->getType($request);
 
         return view('classworks.create', [
-            'classroom' => $classroom ,
-             'type' => $type ,
-             'classwork' => new Classwork(),
+            'classroom' => $classroom,
+            'type' => $type,
+            'classwork' => new Classwork(),
         ]);
     }
 
@@ -54,8 +56,13 @@ class ClassworkController extends Controller
             // 'classroom_id' => $classroom->id 
         ]);
 
-        // here we don't need to pass classroom_id , will take it from relation
-        $classwork =  $classroom->classworks()->create($request->all());
+        DB::transaction(function () use ($classroom, $request) {
+            // here we don't need to pass classroom_id , will take it from relation
+            $classwork =  $classroom->classworks()->create($request->all());
+
+            $classwork->users()->attach($request->input('students'));
+        });
+
 
         return redirect()
             ->route('classrooms.classworks.index', $classroom->id)
@@ -63,8 +70,11 @@ class ClassworkController extends Controller
     }
 
 
-    public function show(Classroom $classroom, Classwork $classwork)
+    public function show(Classroom $classroom, Classwork $classwork )
     {
+        $classwork->load('comments.user');
+        
+        return view('classworks.show' , compact('classwork', 'classroom' ));
     }
 
 
@@ -72,10 +82,13 @@ class ClassworkController extends Controller
     {
         $type = $this->getType($request);
 
+        $assigned = $classwork->users()->pluck('id')->toArray();
+        
         return view('classworks.edit', [
             'classroom' => $classroom,
             'classwork' => $classwork,
-            'type' => $type
+            'type' => $type,
+            'assigned' => $assigned
         ]);
     }
 
@@ -90,7 +103,17 @@ class ClassworkController extends Controller
             'topic_id' => 'nullable|int|exists:topics,id'
         ]);
 
+
         $classwork->update($request->all());
+
+        // sync accept array of values 
+        // update the values => update table value to be equal with array values
+        $classwork->users()->sync($request->input('students'));
+
+
+        // if we need to update without remove the old checked values (keep array value & table value) we use 
+        // $classwork->users()->syncWithoutDetaching($request->input('students'));
+
 
         return redirect()->route('classrooms.classworks.index', (" $classroom->id , $type"))
             ->with('success', 'Classwork Updated');
@@ -103,6 +126,7 @@ class ClassworkController extends Controller
 
         return redirect()->route('classrooms.classworks.index', $classroom->id);
     }
+
 
     protected function getType()
     {

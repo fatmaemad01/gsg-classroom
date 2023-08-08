@@ -2,19 +2,20 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Observers\ClassroomObserver;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Scopes\UserClassroomScope;
-use App\Observers\ClassroomObserver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use NunoMaduro\Collision\Adapters\Phpunit\State;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Classroom extends Model
 {
@@ -81,6 +82,11 @@ class Classroom extends Model
         // classroom_id , id => optional, laravel suppose it by default
         return $this->hasMany(Classwork::class, 'classroom_id', 'id');
     }
+    
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 
     public function topics(): HasMany
     {
@@ -88,29 +94,75 @@ class Classroom extends Model
     }
 
 
-    public function join($user_id, $role = 'student')
+    // Many to many relationship => use Pivot table
+    public function users()
     {
-        DB::table('classroom_user')
-            ->insert([
-                'classroom_id' => $this->id,
-                'user_id' => $user_id,
-                'role' => $role,
-                'created_at' => now(),
-            ]);
+        return $this->belongsToMany(
+            User::class,        // Related model
+            'classroom_user',   // Pivot table
+            'classroom_id',     // FK for current model in the pivot table
+            'user_id',          // FK for related model in the pivot table
+            'id',               // PK for current model
+            'id'                // PK for related model
+        )->withPivot(['role', 'created_at']);
+        // ->as('join') // rename pivot property
+        // ->wherePivot('role' , '=', 'teacher')   we can apply some condition
+
     }
 
 
-    // Accessor 
+    // if we need to return some user, apply some condition for user by use users function nested of define it again 
+    public function teachers()
+    {
+        return $this->users()->wherePivot('role', '=', 'teacher');
+    }
+
+
+    public function students()
+    {
+        return $this->users()->wherePivot('role', '=', 'student');
+    }
+
+
+    public function join($user_id, $role = 'student')
+    {
+        $exists = $this->users()
+            ->wherePivot('user_id', $user_id)
+            ->exists();
+
+        if ($exists) {
+            throw new Exception('User already joined the classroom');
+        }
+
+        // attach insert to pivot table using relation
+        return $this->users()->attach($user_id, [
+            'role' => $role,
+            'created_at' => now()
+        ]);
+
+        // DB::table('classroom_user')
+        //     ->insert([
+        //         'classroom_id' => $this->id,
+        //         'user_id' => $user_id,
+        //         'role' => $role,
+        //         'created_at' => now(),
+        //     ]);
+    }
+
+
+    // Accessors
     public function getNameAttribute($value)
     {
         return strtoupper($value);
     }
 
+
     public function getSectionAttribute($value)
     {
         return strtoupper($value);
     }
-    
+
+
     public function getSubjectAttribute($value)
     {
         return strtoupper($value);
@@ -124,6 +176,7 @@ class Classroom extends Model
     //     }
     //     return asset('./img/1.jpg');
     // }
+
 
     public function getUrlAttribute()
     {

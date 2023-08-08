@@ -48,12 +48,43 @@ class User extends Authenticatable implements MustVerifyEmail
 
 
     // here we define set & get in the same method
-    protected function email() : Attribute
+    protected function email(): Attribute
     {
         return Attribute::make(
-            get: fn(string $value) => strtoupper($value),
-            set: fn(string $value) => strtolower($value)
+            get: fn (string $value) => strtoupper($value),
+            set: fn (string $value) => strtolower($value)
         );
     }
+
     
+    // Many to many => relation (teacher or student ) with classroom
+    public function classrooms()
+    {
+        return $this->belongsToMany(Classroom::class, 'classroom_user', 'user_id', 'classroom_id', 'id', 'id')
+            ->withPivot(['role', 'created_at']);
+    }
+
+
+    // One to many => relation between owner of the classroom
+    public function createdClassroom()
+    {
+        return $this->hasMany(Classroom::class, 'user_id');
+    }
+
+
+    public function classworks()
+    {
+        return $this->belongsToMany(Classwork::class)->withPivot(['status', 'grade', 'submitted_at', 'created_at'])->using(ClassworkUser::class);
+    }
+
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class , 'user_id');
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 }

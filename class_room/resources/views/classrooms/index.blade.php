@@ -1,7 +1,7 @@
 <x-main-layout title="Classrooms">
 <x-nav />
 
-    <x-alert name="success" id="success" class="alert-success" />
+    <x-alert name="success" />
 
     <div class="container mt-4 ">
         <div class="header d-flex justify-content-between">
@@ -22,6 +22,7 @@
                 <div class="row ms-3">
                     @foreach($classrooms as $classroom)
                     <x-card
+                        :username="$classroom->teachers->first()->name"
                         :show="$classroom->url"
                         :name="$classroom->name"
                         :id="$classroom->id"
@@ -35,9 +36,5 @@
             </div>
         </div>
 
-        {{-- how i can add content to stack
-    @push('scripts')
-    <script>alert(1)</script>
-    @endPush
-    --}}
+
 </x-main-layout>

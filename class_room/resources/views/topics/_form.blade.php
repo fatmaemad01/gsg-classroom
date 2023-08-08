@@ -16,5 +16,5 @@
 </div> --}}
 
 <div class="form-floating mb-3">
-    <button type="submit" class="btn btn-primary">{{$button}}</button>
+    <button type="submit" class="btn btn-success">{{$button}}</button>
 </div>

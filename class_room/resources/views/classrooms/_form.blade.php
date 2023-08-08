@@ -24,5 +24,5 @@
 </x-form.form-floating>
 
 <div class="form-floating mb-3">
-    <button class="btn btn-primary" type="submit">{{$button}}</button>
+    <button class="btn btn-success" type="submit">{{$button}}</button>
 </div>

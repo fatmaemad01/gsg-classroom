@@ -63,7 +63,7 @@
             </div>
 
             <div class="icons d-flex justify-content-end">
-                <img src="{{asset('./img/pexels-masha-raymers-2726111.jpg')}}" class="me-4" alt="" height="35px" width="35px" style="border-radius: 50%" />
+                <img src="https://ui-avatars.com/api/?name={{Auth::user()->name}}" class="me-4" alt="" height="35px" width="35px" style="border-radius: 50%" />
             </div>
     </nav>
 
