@@ -1,3 +1,9 @@
+
+@php
+$old_name = str_replace('[', '.' , $name);
+$old_name = str_replace(']', '' , $old_name);
+@endphp
+
 @props([
     'type' => 'text' ,  
     'name' ,
@@ -6,8 +12,8 @@
     ])
 
 <input type="{{$type}}"
-           value="{{old($name , $value)}}" 
+           value="{{old($old_name , $value)}}" 
            name="{{$name}}" 
            id="{{$id ?? $name}}" 
-           {{ $attributes->class(['form-control' , 'is-invalid'=> $errors->has($name)])}}
+           {{ $attributes->class(['form-control' , 'is-invalid'=> $errors->has($old_name)])}}
 >

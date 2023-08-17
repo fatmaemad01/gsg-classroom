@@ -32,7 +32,9 @@ class ClassroomsController extends Controller
 
         $classrooms = Classroom::status('active')
             ->recent()
-            ->get();
+            // ->get();
+            // ->paginate(3);
+            ->simplePaginate(3);
 
         $success = session('success');
         return view('classrooms.index', compact('classrooms', 'success'));

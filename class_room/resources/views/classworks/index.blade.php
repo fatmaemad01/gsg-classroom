@@ -11,7 +11,7 @@
                 <ul class="nav">
                     @foreach($classroom->topics as $topic)
                     <li class="nav-item mt-4">
-                        <a href="{{-- route('topics.index' , $topic->id) --}}" class="text-secondary  pt-4 ">{{$topic->name}}</a>
+                        <a href="{{ route('topics.show' , $topic->id) }}" class="text-secondary  pt-4 ">{{$topic->name}}</a>
                     </li>
                     @endforeach
                 </ul>
@@ -30,6 +30,10 @@
                                 <li><a class="dropdown-item" href="{{route('classrooms.classworks.create', [$classroom->id , 'type'=>'question'])}}">Question</a></li>
                             </ul>
                         </div>
+                        <form action="{{URL::current()}}" method="get" class="d-flex justify-content-start">
+                            <input type="text" name="search" id="search" class="form-control" placeholder="Search">
+                            <button type="submit" class="btn btn-success ms-2"><i class="fas fa-search"></i></button>
+                        </form>
                     </div>
                     @forelse($classworks as $group)
                     <div class="card p-4 mb-4">

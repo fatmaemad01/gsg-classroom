@@ -29,6 +29,18 @@ class PostController extends Controller
         ]);
     }
 
+    public function update(Request $request, Post $post)
+    {
+        $request->validate([
+            'content' => 'required|string',
+        ]);
+
+        $post->update($request->all());
+
+        return back();
+    }
+
+    
     public function destroy(Classroom $classroom, Post $post)
     {
         $post->delete();

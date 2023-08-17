@@ -9,9 +9,11 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\JoinClassroomController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\TopicsController;
 use App\Models\Classroom;
 use App\Models\Comment;
+use App\Models\Submission;
 use App\Models\Topic;
 use PHPUnit\Framework\Attributes\Group;
 /*
@@ -60,9 +62,9 @@ Route::group(
         Route::delete('trashed/{classroom}',  'forceDelete')
             ->name('forceDelete');
 
-        // Route::get('topics/{topic}', 'index')
-        //     ->name('index');
-            
+        Route::get('topics/{topic}', 'show')
+            ->name('show');
+
         Route::get('create/{classroom}', 'create')
             ->name('create');
 
@@ -90,8 +92,17 @@ Route::delete('/classrooms/{classroom}/people',  [ClassroomPeopleController::cla
 Route::post('comments', [CommentController::class, 'store'])
     ->name('comments.store');
 
+Route::put('comments/{comment}', [CommentController::class, 'update'])
+    ->name('comments.update');
+
+Route::delete('comments/{comment}', [CommentController::class, 'destroy'])
+    ->name('comments.destroy');
+
 Route::post('posts/{classroom}/', [PostController::class, 'store'])
     ->name('posts.store');
+
+Route::put('posts/{post}/', [PostController::class, 'update'])
+    ->name('posts.update');
 
 Route::delete('destroy/{classroom}/{post}', [PostController::class, 'destroy'])
     ->name('posts.destroy');
@@ -153,6 +164,12 @@ Route::group(
     }
 );
 
+Route::post('classworks/{classwork}/submissions', [SubmissionController::class,  'store'])
+    ->name('submissions.store');
+
+Route::get('submissions/{submission}/file', [SubmissionController::class, 'file'])
+    ->name('submission.file');
+
 
 Route::resource('classrooms.classworks', ClassworkController::class);
 
@@ -162,7 +179,7 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

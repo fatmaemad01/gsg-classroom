@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TopicRequest;
 use App\Models\Classroom;
+use App\Models\Classwork;
 use App\Models\Topic;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,6 +35,22 @@ class TopicsController extends Controller
         $topic = Topic::create($validated);
 
         return redirect()->route('classroom.show', $classroom->id);
+    }
+
+
+    public function show( Topic $topic )
+    {
+        $classworks =  $topic->classworks()->with('topic')->get();
+        $classroom = $topic->classroom;
+        // $topic = $classwork->topic;
+        return view(
+            'topics.show',
+            [
+                'topic' => $topic,
+                'classroom' => $classroom,
+                'classworks' => $classworks->groupBy('topic_id'),
+            ]
+        );
     }
 
 

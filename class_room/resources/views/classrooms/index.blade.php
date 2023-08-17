@@ -1,9 +1,10 @@
 <x-main-layout title="Classrooms">
 <x-nav />
 
-    <x-alert name="success" />
 
     <div class="container mt-4 ">
+    <x-alert name="success" class="alert-success"/>
+
         <div class="header d-flex justify-content-between">
             <div class="services mb-3">
                 <i class="fa-solid fa-list-check " style="color: #4285f4"></i>
@@ -15,8 +16,10 @@
                 <i class="fa-regular fa-calendar ms-3" style="color: #4285f4"></i>
                 <a href="#" class="ps-1">Calender</a>
             </div>
+          
         </div>
 
+      
         <div class="container">
             <div class="classrooms m-3">
                 <div class="row ms-3">
@@ -30,9 +33,13 @@
                         :subject="$classroom->subject"
                         :room="$classroom->room"
                         :cover_image_path="$classroom->cover_image_path" 
-/>  
+                    />  
                   @endforeach
-                </div>
+                  <div class="mt-4 d-flex justify-content-start">
+                  {{ $classrooms->withQueryString()->appends([''=>''])->links() }}
+
+                  </div>
+                </div>   
             </div>
         </div>
 

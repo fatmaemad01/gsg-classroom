@@ -27,4 +27,23 @@ class CommentController extends Controller
 
         return back()->with('success', 'Comment published ..');
     }
+
+    public function update(Request $request, Comment $comment)
+    {
+        $request->validate([
+            'content' => 'required|string',
+            'id' => 'required|int',
+            'type' => 'required|in:classwork,post',
+        ]);
+
+        $comment->update($request->all());
+
+        return back();
+    }
+
+    public function destroy(Comment $comment)
+    {
+        $comment->delete();
+        return back();
+    }
 }

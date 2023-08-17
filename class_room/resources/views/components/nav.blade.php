@@ -22,7 +22,7 @@
                 <div class="offcanvas-body">
                     <ul class="nav">
                         <li class="nav-item">
-                            <a href="{{route('classroom.index')}}">
+                            <a href="{{route('classroom.index')}}" >
                                 <div class="item d-flex justify-content-between">
                                     <i class="fas fa-home menu-icon"></i>
                                     <span class="menu-title" style="margin: 11px;">Classrooms</span>
@@ -30,7 +30,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{route('classroom.create')}}">
+                            <a href="{{route('classroom.create')}}" >
                                 <div class="item d-flex justify-content-between">
                                     <i class="fas fa-plus menu-icon"></i>
                                     <span class="menu-title " style="margin: 11px;">New Classroom</span>

@@ -2,17 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Enums\ClassworkType;
+// use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Classwork extends Model
 {
     use HasFactory;
 
-    const TYPE_ASSIGNMENT = 'assignment'; 
-    const TYPE_MATERIAL = 'material';
-    const TYPE_QUESTIONS = 'question';
+    const TYPE_ASSIGNMENT =  ClassworkType::TYPE_ASSIGNMENT->value;
+    const TYPE_MATERIAL =  ClassworkType::TYPE_MATERIAL->value;
+    const TYPE_QUESTIONS = ClassworkType::TYPE_QUESTIONS->value;
 
     const STATUS_PUBLISHED = 'Published';
     const STATUS_DRAFT = 'Draft';
@@ -20,9 +23,46 @@ class Classwork extends Model
 
 
     protected $fillable = [
-        'classroom_id', 'user_id', 'topic_id', 'title', 
+        'classroom_id', 'user_id', 'topic_id', 'title',
         'description', 'type', 'status', 'published_at', 'options'
     ];
+
+    protected $casts = [
+        'options' => 'array',
+        'classroom_id ' => 'integer',
+        'published_at' => 'date',
+        'type' => ClassworkType::class
+    ];
+
+    public static function booted()
+    {
+        static::creating(function (Classwork $classwork) {
+            if (!$classwork->published_at) {
+                $classwork->published_at = now();
+            }
+        });
+    }
+
+
+    public function scopeFilter(Builder $builder,  $filters)
+    {
+        $builder->when($filters['search'] ?? '', function ($builder, $value) {
+            $builder->where(function ($builder) use ($value) {
+                $builder->where('title', 'LIKE', "%{$value}%")
+                    ->orWhere('description', 'LIKE', "%{$value}%");
+            });
+        })
+            ->when($filters['type'] ?? '', function ($builder, $value) {
+                $builder->where('type', '=', "%{$value}%");
+            });
+    }
+
+    public function getPublishedDateAttribute()
+    {
+        if ($this->published_at) {
+            return $this->published_at->format('Y-m-d');
+        }
+    }
 
 
     public function classroom(): BelongsTo
@@ -39,13 +79,18 @@ class Classwork extends Model
     public function users()
     {
         return $this->belongsToMany(User::class)
-        ->withPivot(['grade' , 'submitted_at' , 'status' , 'created_at'])
-        ->using(ClassworkUser::class); // to define the model of the pivot table
+            ->withPivot(['grade', 'submitted_at', 'status', 'created_at'])
+            ->using(ClassworkUser::class); // to define the model of the pivot table
     }
 
-    
+
     public function comments()
     {
-        return $this->morphMany(Comment::class, 'commentable')  ;
+        return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function submissions()
+    {
+        return $this->hasMany(Submission::class);
     }
 }

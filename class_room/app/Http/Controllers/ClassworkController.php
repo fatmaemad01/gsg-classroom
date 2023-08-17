@@ -2,21 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use App\Models\Post;
 use App\Models\Classroom;
 use App\Models\Classwork;
-use App\Models\Post;
 use Illuminate\Http\Request;
+// use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\QueryException;
 
 class ClassworkController extends Controller
 {
 
     public function index(Request $request, Classroom $classroom)
     {
+        // here we create query without get data
         $classworks = $classroom->classworks()
             ->with('topic') // Eager load
-            ->orderBy('published_at', 'DESC')
+            // search feature
+            ->filter($request->query())
+            ->latest('published_at', 'DESC') // Query builder
             ->get();
 
         $type = $this->getType($request);
@@ -31,7 +38,10 @@ class ClassworkController extends Controller
 
     public function create(Request $request, Classroom $classroom)
     {
+        // dd($this->getType($request->type));
         $type = $this->getType($request);
+
+        // $assigned = $classwork->users()->pluck('id')->toArray();
 
         return view('classworks.create', [
             'classroom' => $classroom,
@@ -48,21 +58,29 @@ class ClassworkController extends Controller
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'topic_id' => ['nullable', 'int', 'exists:topics,id']
+            'topic_id' => ['nullable', 'int', 'exists:topics,id'],
+            'options.grade' => [Rule::requiredIf(fn () => $type == 'assignment'), 'numeric', 'min:0'],
+            'options.due' => 'nullable|date|after:published_at',
         ]);
 
         $request->merge([
             'user_id' => Auth::id(),
+            'type' => $type
             // 'classroom_id' => $classroom->id 
         ]);
 
-        DB::transaction(function () use ($classroom, $request) {
-            // here we don't need to pass classroom_id , will take it from relation
-            $classwork =  $classroom->classworks()->create($request->all());
+        try {
+            DB::transaction(function () use ($classroom, $request) {
 
-            $classwork->users()->attach($request->input('students'));
-        });
 
+                // here we don't need to pass classroom_id , will take it from relation
+                $classwork =  $classroom->classworks()->create($request->all());
+
+                $classwork->users()->attach($request->input('students'));
+            });
+        } catch (QueryException $ex) {
+            return back();
+        }
 
         return redirect()
             ->route('classrooms.classworks.index', $classroom->id)
@@ -70,20 +88,23 @@ class ClassworkController extends Controller
     }
 
 
-    public function show(Classroom $classroom, Classwork $classwork )
+    public function show(Classroom $classroom, Classwork $classwork)
     {
         $classwork->load('comments.user');
-        
-        return view('classworks.show' , compact('classwork', 'classroom' ));
+
+        $submissions = Auth::user()->submissions()->where('classwork_id', $classwork->id)->get();
+
+        return view('classworks.show', compact('classwork', 'classroom' , 'submissions'));
     }
 
 
     public function edit(Request $request, Classroom $classroom, Classwork $classwork)
     {
-        $type = $this->getType($request);
+        // dd( $classwork->type->value);
+        $type = $classwork->type->value;
 
         $assigned = $classwork->users()->pluck('id')->toArray();
-        
+
         return view('classworks.edit', [
             'classroom' => $classroom,
             'classwork' => $classwork,
@@ -95,12 +116,14 @@ class ClassworkController extends Controller
 
     public function update(Request $request, Classroom $classroom, Classwork $classwork)
     {
-        $type = $this->getType($request);
+        $type = $classwork->type;
 
         $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'topic_id' => 'nullable|int|exists:topics,id'
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'topic_id' => ['nullable', 'int', 'exists:topics,id'],
+            'options.grade' => [Rule::requiredIf(fn () => $type == 'assignment'), 'numeric', 'min:0'],
+            'options.due' => 'nullable|date|after:published_at',
         ]);
 
 
@@ -115,7 +138,7 @@ class ClassworkController extends Controller
         // $classwork->users()->syncWithoutDetaching($request->input('students'));
 
 
-        return redirect()->route('classrooms.classworks.index', (" $classroom->id , $type"))
+        return redirect()->route('classrooms.classworks.index', ([$classroom->id, $type]))
             ->with('success', 'Classwork Updated');
     }
 
