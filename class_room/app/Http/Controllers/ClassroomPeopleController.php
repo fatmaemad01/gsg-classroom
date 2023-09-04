@@ -17,14 +17,16 @@ class ClassroomPeopleController extends Controller
         // detach used to delete user from classroom (user-classroom table) not from database .. using relation 
         $request->validate([
             'user_id' => 'required'
-
         ]);
 
         $user_id = $request->input('user_id');
+        
         if ($user_id == $classroom->user_id) {
             return redirect()->route('classroom.people', $classroom->id)
                 ->with('error', 'Cannot remove user!');
         }
+
+        // remove user from the pivot table
         $classroom->users()->detach($user_id);
 
 

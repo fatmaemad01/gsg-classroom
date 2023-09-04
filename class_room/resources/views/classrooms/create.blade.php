@@ -1,9 +1,7 @@
-<x-main-layout title="Create Classroom">
+<x-main-layout title="{{__('Create Classroom')}}">
     <x-nav />
     <div class="container p-5">
-        <h1 mb-3>Create Classrooms </h1>
-
-        {{-- way to print all errors--}}
+        <h1 mb-3>{{__('Create Classroom')}} </h1>
         <x-errors />
 
         <form action="{{route('classroom.store')}}" method="post" enctype="multipart/form-data">

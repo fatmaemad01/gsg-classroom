@@ -6,7 +6,7 @@
         <form action="{{route('classrooms.classworks.store' , [$classroom->id , 'type'=>$type])}}" method="post">
             @csrf
             <div class="row">
-                <h3>Create {{$type}}</h3>
+                <h3>{{__('Create')}} {{__($type)}}</h3>
                 
              
                 @include('classworks._form' , [

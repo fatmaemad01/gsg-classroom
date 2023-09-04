@@ -11,12 +11,17 @@ use Illuminate\Http\Request;
 
 class TopicsController extends Controller
 {
-    // public function index(Classroom $classroom , Topic $topic)
-    // {
-    //     $classworks = $topic->classworks;
+    public function index(Classroom $classroom)
+    {
+        $topics = $classroom->topics;
+        $classworks = $classroom->classworks()->with('topic')->get();
 
-    //     return view('topics.index' , compact('classworks' , 'classroom'));
-    // }
+        return view('topics.index', [
+            'topics' => $topics,
+            'classworks'=> $classworks->groupBy('topic_id'),
+            'classroom' => $classroom
+        ]);
+    }
 
     public function create(Classroom $classroom)
     {
@@ -34,11 +39,12 @@ class TopicsController extends Controller
         $validated['classroom_id'] = $classroom->id;
         $topic = Topic::create($validated);
 
-        return redirect()->route('classroom.show', $classroom->id);
+        // return redirect()->route('classroom.show', $classroom->id);
+        return back();
     }
 
 
-    public function show( Topic $topic )
+    public function show(Topic $topic)
     {
         $classworks =  $topic->classworks()->with('topic')->get();
         $classroom = $topic->classroom;
@@ -54,13 +60,6 @@ class TopicsController extends Controller
     }
 
 
-    public function edit(Topic $topic)
-    {
-        return view('topics.edit', [
-            'topic' => $topic,
-        ]);
-    }
-
 
     public function update(TopicRequest $request, Topic $topic)
     {
@@ -68,7 +67,7 @@ class TopicsController extends Controller
 
         $topic->update($validated);
 
-        return redirect()->route('classroom.show', $topic->classroom_id);
+        return back();
     }
 
 
@@ -76,31 +75,6 @@ class TopicsController extends Controller
     {
         $topic->delete();
 
-        return redirect()->route('topics.trashed', $topic->classroom_id);
+        return redirect()->route('classrooms.classworks.index', $topic->classroom_id);
     }
-
-
-    // public function trashed()
-    // {
-    //     $topics = Topic::onlyTrashed()->latest('deleted_at')->get();
-    //     return view('topics.trashed' , compact('topics'));
-
-    // }
-
-    // public function restore($id)
-    // {
-    //     $topic = Topic::onlyTrashed()->findOrFail($id);
-    //     $topic->restore();
-
-    //     return redirect()->route('classroom.index')->with('success' , "Topic $topic->name Restored");
-    // }
-
-    // public function forceDelete($id)
-    // {
-    //     $topic = Topic::onlyTrashed()->findOrFail($id);
-    //     $topic->forceDelete();
-
-    //     return redirect()->route('topics.trashed')->with('success' , "Topic $topic->name Deleted");
-
-    // }
 }

@@ -27,8 +27,14 @@ use Illuminate\Validation\ValidationException;
 class ClassroomsController extends Controller
 {
 
+    public function __construct()
+    {
+        // $this->authorize(Classroom::class);
+    }
+
     public function index(Request $request)
     {
+        $this->authorize('view-any', Classroom::class);
 
         $classrooms = Classroom::status('active')
             ->recent()
@@ -40,7 +46,7 @@ class ClassroomsController extends Controller
         return view('classrooms.index', compact('classrooms', 'success'));
     }
 
-    
+
     public function create()
     {
         return view()->make('classrooms.create', [
@@ -76,14 +82,14 @@ class ClassroomsController extends Controller
                 ->withInput();
         }
 
-        return redirect()->route('classroom.index')->with('success', $classroom->name . ' Created Successfully.');
+        return redirect()->route('classroom.index')->with('success', $classroom->name . __('Created Successfully.'));
     }
 
 
-    public function show(Classroom $classroom , Post $post)
+    public function show(Classroom $classroom, Post $post)
     {
         $classworks = $classroom->classworks;
-        
+
         $posts  = $classroom->posts;
 
         $post->load('comments.user');
@@ -91,15 +97,15 @@ class ClassroomsController extends Controller
         $invitation_link = URL::signedRoute('classroom.join', [
             'classroom' => $classroom->id,
             'code' => $classroom->code,
-            
+
         ]);
 
-        return view('classrooms.show' , [
+        return view('classrooms.show', [
             'classworks' => $classworks,
             'classroom' => $classroom,
             'invitation_link' => $invitation_link,
-            'posts' => $posts , 
-            'post' => $post , 
+            'posts' => $posts,
+            'post' => $post,
         ]);
     }
 
@@ -134,7 +140,7 @@ class ClassroomsController extends Controller
         }
 
         return redirect()->route('classroom.index')
-            ->with('success', $classroom->name . ' Updated Successfully.');
+            ->with('success', $classroom->name . __(' Updated Successfully.'));
     }
 
 
@@ -143,7 +149,7 @@ class ClassroomsController extends Controller
         $classroom->delete();
 
         return redirect()->route('classroom.index')
-            ->with('success', 'Classroom deleted');
+            ->with('success', __('Classroom deleted'));
     }
 
 
@@ -164,7 +170,7 @@ class ClassroomsController extends Controller
 
         return redirect()
             ->route('classroom.index')
-            ->with('success', "Classroom $classroom->name Restored");
+            ->with('success', __("Classroom $classroom->name Restored"));
     }
 
 
@@ -176,6 +182,6 @@ class ClassroomsController extends Controller
         // image will deleted by event
         return redirect()
             ->route('classroom.trashed')
-            ->with('success', "Classroom $classroom->name Deleted forever!");
+            ->with('success', __("Classroom $classroom->name Deleted forever!"));
     }
 }

@@ -76,6 +76,12 @@ class Classwork extends Model
     }
 
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+
     public function users()
     {
         return $this->belongsToMany(User::class)
@@ -84,6 +90,7 @@ class Classwork extends Model
     }
 
 
+    // Classwork Model
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable');
@@ -92,5 +99,10 @@ class Classwork extends Model
     public function submissions()
     {
         return $this->hasMany(Submission::class);
+    }
+
+    public function stream()
+    {
+        return $this->hasOne(Stream::class, 'classwork_id', 'id')->withDefault(); // with hasOne and belongsTo
     }
 }

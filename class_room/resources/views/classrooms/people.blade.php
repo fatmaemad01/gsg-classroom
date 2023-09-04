@@ -8,7 +8,7 @@
             <div class="col-2"></div>
             <div class="col-8">
                 <div class="teacher mb-5">
-                    <h2 class="text-success mb-1">Teachers</h2>
+                    <h2 class="text-success mb-1">{{__('Teachers')}}</h2>
                     <hr class="text-success  mb-3 fw-bold">
 
                     @foreach ($classroom->teachers()->orderBy('name')->get() as $user)
@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="students mb-5">
-                    <h2 class="text-success">Classmates</h2>
+                    <h2 class="text-success">{{__('Classmates')}}</h2>
                     <hr class="text-success mb-3 fw-bold">
 
                     @foreach ($classroom->students()->orderBy('name')->get() as $user)

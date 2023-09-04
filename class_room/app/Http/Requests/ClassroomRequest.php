@@ -20,9 +20,11 @@ class ClassroomRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
-    
+
     public function rules(): array
     {
+        $id = $this->route('classroom' , 0);
+
         return [
             'code' => 'string',
             'name' => 'required|string|min:3|max:255',
@@ -37,13 +39,12 @@ class ClassroomRequest extends FormRequest
                     'min_height' => 100,
                 ])
             ],
-
         ];
     }
 
     public function message(): array
     {
-        // use to create custom error message 
+        // use to create custom error message
         return [
             'required' => ':attribute Important',
             'required.name' => 'Name field is Important!'

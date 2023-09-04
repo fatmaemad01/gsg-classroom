@@ -53,16 +53,10 @@ Route::group(
 
     ],
     function () {
-        Route::get('trashed', 'trashed')
-            ->name('trashed');
+        Route::get('all/{classroom}', 'index')
+            ->name('index');
 
-        Route::put('trashed/{classroom}',  'restore')
-            ->name('restore');
-
-        Route::delete('trashed/{classroom}',  'forceDelete')
-            ->name('forceDelete');
-
-        Route::get('topics/{topic}', 'show')
+        Route::get('{topic}', 'show')
             ->name('show');
 
         Route::get('create/{classroom}', 'create')
@@ -97,6 +91,9 @@ Route::put('comments/{comment}', [CommentController::class, 'update'])
 
 Route::delete('comments/{comment}', [CommentController::class, 'destroy'])
     ->name('comments.destroy');
+
+Route::get('post/show/{post}', [PostController::class, 'show'])
+    ->name('posts.show');
 
 Route::post('posts/{classroom}/', [PostController::class, 'store'])
     ->name('posts.store');
@@ -163,6 +160,7 @@ Route::group(
         Route::post('{classroom}/join', 'store');
     }
 );
+
 
 Route::post('classworks/{classwork}/submissions', [SubmissionController::class,  'store'])
     ->name('submissions.store');

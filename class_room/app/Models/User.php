@@ -56,11 +56,17 @@ class User extends Authenticatable implements MustVerifyEmail
         );
     }
 
-    
     // Many to many => relation (teacher or student ) with classroom
     public function classrooms()
     {
-        return $this->belongsToMany(Classroom::class, 'classroom_user', 'user_id', 'classroom_id', 'id', 'id')
+        return $this->belongsToMany(
+            Classroom::class,
+            'classroom_user',
+            'user_id',
+            'classroom_id',
+            'id',
+            'id'
+        )
             ->withPivot(['role', 'created_at']);
     }
 
@@ -80,8 +86,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function comments()
     {
-        return $this->hasMany(Comment::class , 'user_id');
+        return $this->hasMany(Comment::class, 'user_id');
     }
+
 
     public function posts()
     {
@@ -92,4 +99,29 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Submission::class);
     }
+
+    public function profile()
+    {
+        return $this->hasOne(Profile::class, 'user_id', 'id')->withDefault(); // with hasOne and belongsTo
+    }
+
+
+    // this is default when felid name is email, but if we have another felid name we must define it
+    public function routeNotificationForMail($notification = null)
+    {
+        return $this->email;
+    }
+
+    public function routeNotificationForVonage($notification = null)
+    {
+        // return $this->phone;
+        return '972594117270';
+    }
+
+    public function routeNotificationForHadara($notification = null)
+    {
+        return '021548745';
+    }
 }
+
+

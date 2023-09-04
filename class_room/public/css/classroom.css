@@ -41,33 +41,24 @@ a {
   font-weight: 500;
 }
 
-.nav-item:hover {
-  background-color: #198754bb;
+nav .nav-item:hover  {
+  background-color: #434443bb;
   color: #fff;
   font-weight: bolder;
   /* border-bottom: 1px solid #198754c4; */
 }
 
-.nav-item a {
-  color: #198754;
+.nav-item span {
+    font-size: 15px;
 }
 
 .nav-item a:hover {
   color: #fff;
 }
 
-.alert .alert-success {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 9999;
-  opacity: 0.5;
-  background-color: #4285f4;
-  height: 18rem;
-  width: 100px;
-
+#cover_image{
+    /* background-image: url(../storage/covers/{{  }}); */
 }
-
 
 .menu-icon {
   display: block;

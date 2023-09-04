@@ -1,6 +1,6 @@
-<x-main-layout title="Edit Topic">
+<x-main-layout title="{{__('Update Topic')}}">
     <div class="container mt-4">
-        <h2 mb-3>Edit Topic </h2>
+        <h2 mb-3>{{__('Update Topic')}} </h2>
 
         <form action="{{route('topics.update' , $topic->id)}}" method="POST">
             @method('put')

@@ -2,20 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ClassworkSubmitted;
 use Throwable;
 use App\Models\Classwork;
 use App\Models\Submission;
 use App\Rules\ForbiddenFile;
 use Illuminate\Http\Request;
 use App\Models\ClassworkUser;
+// use Illuminate\Auth\Access\Gate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class SubmissionController extends Controller
 {
 
     public function store(Request $request, Classwork $classwork)
     {
+        Gate::authorize('submissions.create' , [$classwork]);
         $request->validate([
             'files' => 'required|array',
             'files.*' => ['file', new ForbiddenFile('text/x-php', 'application/x-msdownload')]
@@ -52,6 +56,8 @@ class SubmissionController extends Controller
                 'submitted_at' => now()
             ]);
 
+            event( new ClassworkSubmitted($classwork));
+            
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
@@ -67,27 +73,27 @@ class SubmissionController extends Controller
         // Check if the user is classroom teacher
 
         /*
-        select * FROM classroom_user 
+        select * FROM classroom_user
         WHERE user_id = ?
         AND role = teacher
         AND  EXISTS (
-            SELECT 1 FROM classworks.classroom_id = classroom_user.classroom_id 
+            SELECT 1 FROM classworks.classroom_id = classroom_user.classroom_id
              AND EXISTS  (
-                SELECT 1 FROM submission WHERE submissions.classwork_id =  classworks.id id=? 
+                SELECT 1 FROM submission WHERE submissions.classwork_id =  classworks.id id=?
             )
-        ) 
+        )
         */
 
-        DB::select('select * FROM classroom_user 
+        DB::select('select * FROM classroom_user
         WHERE user_id = ?
         AND role = ?
         AND  EXISTS (
-            SELECT 1 FROM classworks WHERE classworks.classroom_id = classroom_user.classroom_id 
+            SELECT 1 FROM classworks WHERE classworks.classroom_id = classroom_user.classroom_id
              AND EXISTS  (
-                SELECT 1 FROM submissions WHERE submissions.classwork_id =  classworks.id AND id= ?) 
+                SELECT 1 FROM submissions WHERE submissions.classwork_id =  classworks.id AND id= ?)
                 )'
         , [$user->id , 'teacher' , $submission->id]);
-        
+
         $isTeacher = $submission->classwork->classroom->teachers()->where('id', $user->id)->exists();
         $isOwner = $submission->user_id == $user->id;
 
@@ -96,7 +102,7 @@ class SubmissionController extends Controller
         }
 
         // file function return file that we can see it in the browser,
-        // but if we use storage download it's use just for download file without display it  
+        // but if we use storage download it's use just for download file without display it
         return response()->file(storage_path('app/' . $submission->content));
     }
 }

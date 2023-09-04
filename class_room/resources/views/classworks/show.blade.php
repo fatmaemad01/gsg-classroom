@@ -1,5 +1,5 @@
 <x-main-layout title="Show">
-    <x-secondary-nav id="$classwork->id" />
+    <x-secondary-nav :id="$classroom->id" />
     <div class="container p-5">
         <x-alert name="success" class="alert-success" />
         <x-alert name="error" class="alert-danger" />
@@ -9,9 +9,9 @@
                 <div class="py-4">
                     <h2 class="text-success fw-bold"> <i class="fas fa-file-lines me-3"></i> {{$classwork->title}}</h2>
                     <p class="text-secondary ">By. {{$classroom->teachers->first()->name}} . {{$classwork->created_at->diffForHumans(null , true)}}</p>
-                    <p class="fw-normal">{{$classwork->description}}</p>
+                    <p class="fw-normal">{!! $classwork->description !!}</p>
                 </div>
-                <h6 class=" mt-5 mb-3 text-secondary" style="font-size: 17px;"><i class="fas fa-user-group me-2"></i> Class comments</h6>
+                <h6 class=" mt-5 mb-3 text-secondary" style="font-size: 17px;"><i class="fas fa-user-group me-2"></i> {{__('Class comments')}}</h6>
                 <div class="mt-3">
                     @foreach ($classwork->comments as $comment)
                     <div class="row">
@@ -59,8 +59,8 @@
                             @csrf
                             <input type="hidden" name="id" value="{{$classwork->id}}">
                             <input type="hidden" name="type" value="classwork">
-                            <x-form.form-floating name="content" placeholder="Add a class comment">
-                                <x-form.textarea name="content" placeholder="Add a class comment">
+                            <x-form.form-floating name="content" placeholder="{{__('Add a class comment')}}">
+                                <x-form.textarea name="content" placeholder="{{__('Add a class comment')}}">
                                 </x-form.textarea>
                             </x-form.form-floating>
                         </div>
@@ -74,10 +74,11 @@
 
             </div>
             <div class="col-lg-4 ">
+                @can('submissions.create' , [$classwork])
                 <div class="card mb-5 p-5 shadow-lg p-3 mb-5 bg-body rounded" style="border: none;">
                     <div class="head d-flex justify-content-between">
-                        <h5 class="text-secondary">Your Work</h5>
-                        <p class="text-secondary" style="font-size: 14px;">Handed in</p>
+                        <h5 class="text-secondary">{{__('Your Work')}}</h5>
+                        <p class="text-secondary" style="font-size: 14px;">{{__('Handed in')}}</p>
                     </div>
 
                     <form action="{{route('submissions.store' , $classwork->id)}}" method="post" enctype="multipart/form-data">
@@ -85,22 +86,23 @@
                         <x-form.form-floating name="files.0" placeholder="submit your work">
                             <x-form.input name="files[]" type="file" multiple accept="image/* , application/pdf" placeholder="submit your work" />
                         </x-form.form-floating>
-                        <button class="btn btn-success" style="width: 100%;">Submit</button>
+                        <button class="btn btn-success" style="width: 100%;">{{__('Submit')}}</button>
                     </form>
                 </div>
                 <div class="card p-5 shadow-lg p-3 mb-5 bg-body rounded" style="border: none;">
-                    <h6 class="text-secondary"> <i class="fas fa-user me-2"></i> Private Comments </h6>
-                    <a href="" class="text-success fw-bold mt-2" style="font-size: 15px;">Add Private comment to {{$classroom->teachers->first()->name}}</a>
+                    <h6 class="text-secondary"> <i class="fas fa-user me-2"></i>{{__('Private Comments')}} </h6>
+                    <a href="" class="text-success fw-bold mt-2" style="font-size: 15px;"> {{ __('Add Private comment to')}} {{$classroom->teachers->first()->name}}</a>
                 </div>
                 @if($submissions->count())
                 <div class=" mb-5 p-5 shadow-lg p-3 mb-5 bg-body rounded">
-                    <h5 class="text-secondary">Your Submissions</h5>
+                    <h5 class="text-secondary">{{__('Your Submissions')}}</h5>
                     <ul>
                         @foreach ($submissions as $submission)
-                        <li><a href="{{route('submission.file' , $submission->id)}}">File: {{$loop->iteration}}</a></li>
+                        <li><a href="{{route('submission.file' , $submission->id)}}">{{__('File')}}: {{$loop->iteration}}</a></li>
                         @endforeach
                     </ul>
                 </div>
+                @endCan
             </div>
             @endif
         </div>

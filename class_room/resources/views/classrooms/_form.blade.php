@@ -24,5 +24,9 @@
 </x-form.form-floating>
 
 <div class="form-floating mb-3">
-    <button class="btn btn-success" type="submit">{{$button}}</button>
+    <button class="btn btn-success" type="submit">{{__($button)}}</button>
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+@endPush

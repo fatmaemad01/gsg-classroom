@@ -68,6 +68,15 @@ class Classroom extends Model
         $query->where('status', '=', $status);
     }
 
+    protected $appends = [
+        'cover_image_url'
+    ];
+
+    // data we need to hide from json response
+    protected $hidden = [
+        'deleted_at',
+        'cover_image_path'
+    ];
 
     protected static function booted()
     {
@@ -82,7 +91,7 @@ class Classroom extends Model
         // classroom_id , id => optional, laravel suppose it by default
         return $this->hasMany(Classwork::class, 'classroom_id', 'id');
     }
-    
+
     public function posts()
     {
         return $this->hasMany(Post::class);
@@ -94,6 +103,10 @@ class Classroom extends Model
     }
 
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     // Many to many relationship => use Pivot table
     public function users()
     {
@@ -107,11 +120,10 @@ class Classroom extends Model
         )->withPivot(['role', 'created_at']);
         // ->as('join') // rename pivot property
         // ->wherePivot('role' , '=', 'teacher')   we can apply some condition
-
     }
 
 
-    // if we need to return some user, apply some condition for user by use users function nested of define it again 
+    // if we need to return some user, apply some condition for user by use users relation nested of define it again
     public function teachers()
     {
         return $this->users()->wherePivot('role', '=', 'teacher');
@@ -123,6 +135,10 @@ class Classroom extends Model
         return $this->users()->wherePivot('role', '=', 'student');
     }
 
+    public function streams()
+    {
+        return $this->hasMany(Stream::class)->latest();
+    }
 
     public function join($user_id, $role = 'student')
     {
@@ -135,10 +151,12 @@ class Classroom extends Model
         }
 
         // attach insert to pivot table using relation
-        return $this->users()->attach($user_id, [
-            'role' => $role,
-            'created_at' => now()
-        ]);
+        return
+        // Classroom model, when need to insert data to pivot table (classroom_user)
+            $this->users()->attach($user_id, [
+                'role' => $role,
+                'created_at' => now()
+            ]);
 
         // DB::table('classroom_user')
         //     ->insert([
@@ -169,13 +187,13 @@ class Classroom extends Model
     }
 
     // $classroom->cover_image_url
-    // public function getCoverImageUrlAttribute()
-    // {
-    //     if ($this->cover_image_path) {
-    //         return Storage::disk(static::$disk)->url($this->cover_image_path);
-    //     }
-    //     return asset('./img/1.jpg');
-    // }
+    public function getCoverImageUrlAttribute()
+    {
+        if ($this->cover_image_path) {
+            return Storage::disk(static::$disk)->url($this->cover_image_path);
+        }
+        return asset('./img/1.jpg');
+    }
 
 
     public function getUrlAttribute()
