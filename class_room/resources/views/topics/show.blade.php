@@ -1,9 +1,25 @@
 <x-main-layout title="Topic">
-    <x-secondary-nav :id="$classroom->id" />
-    <div class="container m-5">
+    <x-secondary-nav>
+        <li class="nav-item active">
+            <a class="nav-link text-success" href="{{ route('classroom.show', $classroom->id) }}">
+                Stream
+            </a>
+        </li>
+        <li class="nav-item ">
+            <a class="nav-link text-success" href="{{ route('classrooms.classworks.index', $classroom->id) }}">
+                Classworks
+            </a>
+        </li>
+        <li class="nav-item ">
+            <a class="nav-link text-success" href="{{ route('classroom.people', $classroom->id) }}">
+                People
+            </a>
+        </li>
+    </x-secondary-nav>
+    <div class="">
         <div class="row">
-            <div class="col-1"></div>
-            <div class="col-1 mt-5">
+            {{-- <div class="col-1"></div> --}}
+            <div class="col-1 ms-3 mt-5">
                 <a href="{{ route('topics.index', [$classroom->id ]) }}" class="text-success fw-bold"
                     style="font-size: 15px;">
                     All Topics
@@ -23,7 +39,8 @@
                 @forelse($classworks as $group)
                     <div class="head d-flex justify-content-between my-4">
                         <h3 class="text-success "> {{ $group->first()->topic->name }}</h3>
-                        <x-more :name="$group->first()->topic->name"
+                        <x-more isTopic="{{ true }}" :name="$group->first()->topic->name"
+                            :id="$group->first()->topic->id"
                             deleteRoute="{{ route('topics.destroy', $group->first()->topic->id) }}"
                             updateRoute="{{ route('topics.update', $group->first()->topic->id) }}" />
                     </div>

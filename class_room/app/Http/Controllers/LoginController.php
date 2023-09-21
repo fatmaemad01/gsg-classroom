@@ -28,7 +28,7 @@ class LoginController extends Controller
         ];
 
         $result  = Auth::attempt($credentials , $request->boolean('remember'));
-        
+
         $user = User::where('email', '=', $request->email)->first();
 
         if($result){

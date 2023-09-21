@@ -21,23 +21,23 @@ class ClassroomPolicy
      */
     public function view(User $user, Classroom $classroom): bool
     {
-        //
+        return $user->classrooms->wherePivot('classroom_id', $classroom->id)->exists();
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
-    {
-        //
-    }
+    // public function create(User $user): bool
+    // {
+    //     //
+    // }
 
     /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, Classroom $classroom): bool
     {
-        //
+        return $classroom->teachers()->exists();
     }
 
     /**
@@ -45,7 +45,7 @@ class ClassroomPolicy
      */
     public function delete(User $user, Classroom $classroom): bool
     {
-        //
+        return $classroom->user()->exists();
     }
 
     /**
@@ -53,7 +53,7 @@ class ClassroomPolicy
      */
     public function restore(User $user, Classroom $classroom): bool
     {
-        //
+        return $classroom->teachers()->exists();
     }
 
     /**
@@ -61,6 +61,6 @@ class ClassroomPolicy
      */
     public function forceDelete(User $user, Classroom $classroom): bool
     {
-        //
+        return $classroom->teachers()->exists();
     }
 }

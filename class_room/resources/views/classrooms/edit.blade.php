@@ -1,6 +1,4 @@
 <x-main-layout title="{{__('Update Classroom')}}">
-<x-nav />
-
     <div class="container p-5">
         <h1>{{__('Update Classroom')}} # {{$classroom->id}} </h1>
         <form action="{{route('classroom.update' , $classroom->id)}}" method="post" enctype="multipart/form-data">

@@ -1,6 +1,5 @@
 <x-main-layout title="Edit Profile">
-    <x-nav />
-    <div class="container p-5 my-4">
+    <div class="container  ">
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <div class="card p-5 mb-4">

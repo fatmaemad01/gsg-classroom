@@ -16,9 +16,9 @@ class UserSeeder extends Seeder
     {
         // Query Builder
         DB::table('users')->insert([
-            'name' => 'Fatima',
+            'name' => 'Fatma',
             'email' => 'fatma@gmail.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('12345678'),
         ]);
     }
 }

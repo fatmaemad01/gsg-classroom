@@ -31,7 +31,7 @@ class AccessTokenController extends Controller
         if ($user && Hash::check($request->password, $user->password)) {
 
             $name = $request->post('device_name', $request->userAgent());
-            $abilities = $request->post('abilites', ['*']);
+            $abilities = $request->post('abilities', ['*']);
             $token = $user->createToken($name, $abilities, now()->addDays(90));
 
             return Response::json([
@@ -41,16 +41,14 @@ class AccessTokenController extends Controller
         }
 
         return Response::json([
-            'message' =>  __('Inalid Credentials'),
+            'message' =>  __('Invalid Credentials'),
         ], 401);
     }
-
 
     // Revoke
     public function destroy($id = null)
     {
         $user = Auth::guard('sanctum')->user();
-
         if ($id) {
             // Revoke (logout) from current device
             if ($id == 'current') {

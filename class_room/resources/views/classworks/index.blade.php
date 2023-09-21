@@ -1,8 +1,24 @@
 <x-main-layout :title="$classroom->name">
-    <x-secondary-nav :id="$classroom->id" />
-    <div class="container  mt-4">
+    <x-secondary-nav>
+        <li class="nav-item active">
+            <a class="nav-link text-success" href="{{ route('classroom.show', $classroom->id) }}">
+                Stream
+            </a>
+        </li>
+        <li class="nav-item ">
+            <a class="nav-link text-success" href="{{ route('classrooms.classworks.index', $classroom->id) }}">
+                Classworks
+            </a>
+        </li>
+        <li class="nav-item ">
+            <a class="nav-link text-success" href="{{ route('classroom.people', $classroom->id) }}">
+                People
+            </a>
+        </li>
+    </x-secondary-nav>
+    <div class="">
         <div class="row">
-            <div class="col-lg-1 m-5">
+            <div class="col-lg-1 mt-5 ms-3">
                 <a href="{{ route('topics.index', $classroom->id) }}" class="text-success fw-bold"
                     style="font-size: 15px;">
                     {{ __('All Topics') }}
@@ -16,14 +32,15 @@
                     @endforeach
                 </ul>
             </div>
+            <div class="col-lg-1"></div>
             <div class="col-lg-9">
-                <div class="content m-5">
+                <div class="content mt-5 ms-3">
                     <div class="head d-flex justify-content-between mb-4 ">
                         @can('create', ['App\Models\Classwork', $classroom])
                             <div class="dropdown">
-                                <button style="border-radius: 50px;" class="btn btn-success dropdown-toggle" type="button"
+                                <button style="border-radius: 50px; margin-right:10px" class="btn btn-success dropdown-toggle" type="button"
                                     id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-plus me-2"></i> {{ __('Create') }}
+                                    <i class="fa fa-plus me-2"></i> {{ __('Create') }}
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                     <li><a class="dropdown-item"
@@ -41,7 +58,7 @@
                         <form action="{{ URL::current() }}" method="get" class="d-flex justify-content-start">
                             <input type="text" name="search" id="search" class="form-control"
                                 placeholder="{{ __('Search') }}">
-                            <button type="submit" class="btn btn-success ms-2"><i class="fas fa-search"></i></button>
+                            <button type="submit" class="btn btn-success ms-2"><i class="fa fa-search"></i></button>
                         </form>
                     </div>
                     @forelse($classworks as $group)
@@ -55,7 +72,7 @@
                                                 data-bs-toggle="collapse"
                                                 data-bs-target="#flush-collapse{{ $classwork->id }}"
                                                 aria-expanded="false" aria-controls="flush-collapseOne">
-                                                <i class="fas fa-file-lines ms-2 me-3 text-success"></i>
+                                                <i class="fa fa-file ms-2 me-3 text-success"></i>
                                                 {{ $classwork->title }}
                                             </button>
                                         </h2>
@@ -94,18 +111,17 @@
                                                     class=" text-success ms-3 mt-2">View instructions</a>
                                                 <div class="d-flex justify-content-between mt-1 me-3">
                                                     @can('update', ['App\Models\Classwork', $classwork])
-                                                        <a href="{{ route('classrooms.classworks.edit', [$classroom->id, $classwork->id]) }}"
-                                                            class="btn btn-outline-success"><i class="fas fa-edit"></i></a>
-                                                    @endcan
-                                                    @can('delete', ['App\Models\Classwork', $classwork])
-                                                        <form
-                                                            action="{{ route('classrooms.classworks.destroy', [$classroom->id, $classwork->id]) }}"
-                                                            method="post" class="ms-3">
-                                                            @csrf
-                                                            @method('delete')
-                                                            <button type="submit" class="btn btn-outline-danger "><i
-                                                                    class="fas fa-trash"></i></button>
-                                                        </form>
+                                                        @can('delete', ['App\Models\Classwork', $classwork])
+                                                            <x-more :id="$classwork->id" :name="$classwork->title"
+                                                                deleteRoute="{{ route('classrooms.classworks.destroy', [$classwork->classroom_id, $classwork->id]) }}"
+                                                                updateRoute="{{ route('classrooms.classworks.update', [$classwork->classroom_id, $classwork->id]) }}">
+                                                                <h5 class="text-center m-3">Update {{ $classwork->title }}</h5>
+                                                                @include('classworks._form', [
+                                                                    'type' => $classwork->type->value,
+                                                                    'button' => 'Edit',
+                                                                ])
+                                                            </x-more>
+                                                        @endcan
                                                     @endcan
                                                 </div>
                                             </div>

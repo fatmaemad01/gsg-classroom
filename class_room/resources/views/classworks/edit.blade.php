@@ -1,5 +1,5 @@
 <x-main-layout title="Edit Classwork">
-    <x-secondary-nav :id="$classroom->id" />
+    {{-- <x-secondary-nav :id="$classroom->id" /> --}}
 
     <div class="container mt-5">
         <h3>Edit {{$classwork->title}}</h3>

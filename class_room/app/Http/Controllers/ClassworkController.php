@@ -61,10 +61,6 @@ class ClassworkController extends Controller
     public function create(Request $request, Classroom $classroom)
     {
         $this->authorize('create', [Classwork::class, $classroom]);
-        // Gate::authorize('classworks.create', [$classroom]);
-        // if (!Gate::allows('classworks.create', [$classroom])) {
-        //     abort(403);
-        // }
 
         $type = $this->getType($request);
 
@@ -93,23 +89,18 @@ class ClassworkController extends Controller
         $request->merge([
             'user_id' => Auth::id(),
             'type' => $type
-            // 'classroom_id' => $classroom->id
         ]);
 
         try {
-
             strip_tags($request->post('description'), ['p', 'ol', 'li']);
 
             DB::transaction(function () use ($classroom, $request) {
-                // here we don't need to pass classroom_id , will take it from relation
                 $classwork =  $classroom->classworks()->create($request->all());
 
                 $classwork->users()->attach($request->input('students'));
 
                 event(new ClassworkCreated($classwork));
                 // ClassworkCreated::dispatch($classwork);
-                // dd($classwork);
-
             });
         } catch (QueryException $ex) {
             return back();
@@ -168,14 +159,7 @@ class ClassworkController extends Controller
 
         $classwork->update($request->all());
 
-        // sync accept array of values
-        // update the values => update table value to be equal with array values
         $classwork->users()->sync($request->input('students'));
-
-
-        // if we need to update without remove the old checked values (keep array value & table value) we use
-        // $classwork->users()->syncWithoutDetaching($request->input('students'));
-
 
         event(new ClassworkUpdated($classwork));
 

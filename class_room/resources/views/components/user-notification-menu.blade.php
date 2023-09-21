@@ -1,7 +1,7 @@
-<div class=" dropdown dropstart">
-    <button type="button" class="btn btn-secondary position-relative " role="button"
+<div class=" dropdown ">
+    <button type="button" class="btn dropdown-toggle position-relative " role="button"
         data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="fa-solid fa-bell"></i>
+        Notifications
         @if ($unreadCount)
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 {{ $unreadCount }}

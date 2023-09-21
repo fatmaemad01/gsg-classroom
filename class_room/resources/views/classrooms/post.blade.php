@@ -1,5 +1,5 @@
 <x-main-layout :title="$post->classroom->name">
-    <x-nav />
+    {{-- <x-nav /> --}}
     <div class="container p-5">
         <div class="card p-4 mt-4">
             <div class=" d-flex justify-content-start">

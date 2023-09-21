@@ -16,17 +16,13 @@ class ClassroomsController extends Controller
 {
     public function index()
     {
-        // this will be collection, laravel by default will convert it to json
-        // return Classroom::all();
         if (!Auth::guard('sanctum')->user()->tokenCan('classrooms.read')) {
             abort(403);
         }
         $classrooms = Classroom::with('user:id,name', 'topics')
             ->withCount('students')
             ->get();
-        // return $classrooms;
-        // return  response()->json($classrooms, 200);
-        // return ClassroomResource::collection($classrooms);
+
         return new ClassroomCollection($classrooms);
     }
 
@@ -67,6 +63,7 @@ class ClassroomsController extends Controller
         if(!Auth::guard('sanctum')->user()->tokenCan('classrooms.read')){
             abort(403);
         }
+
         $classroom->load('user')->loadCount('students');
         return new ClassroomResource($classroom);
     }

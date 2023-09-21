@@ -29,6 +29,7 @@ class ClassroomsController extends Controller
 
     public function __construct()
     {
+        $this->middleware('subscribed')->only('create', 'store');
         // $this->authorize(Classroom::class);
     }
 
@@ -88,6 +89,8 @@ class ClassroomsController extends Controller
 
     public function show(Classroom $classroom, Post $post)
     {
+        // $this->authorize('view', [Classroom::class]);
+
         $classworks = $classroom->classworks;
 
         $posts  = $classroom->posts;
@@ -106,12 +109,16 @@ class ClassroomsController extends Controller
             'invitation_link' => $invitation_link,
             'posts' => $posts,
             'post' => $post,
+            'topic' => new Topic()
+
         ]);
     }
 
 
     public function edit(Classroom $classroom)
     {
+        // $this->authorize('update', [Classroom::class]);
+
         return view('classrooms.edit', [
             'classroom' => $classroom,
         ]);
@@ -120,6 +127,8 @@ class ClassroomsController extends Controller
 
     public function update(ClassroomRequest $request, Classroom $classroom)
     {
+        // $this->authorize('update', [Classroom::class]);
+
         $validated = $request->validated();
 
         $data = $request->except('cover_img');
@@ -146,6 +155,8 @@ class ClassroomsController extends Controller
 
     public function destroy(Classroom $classroom)
     {
+        // $this->authorize('delete', [Classroom::class]);
+
         $classroom->delete();
 
         return redirect()->route('classroom.index')
@@ -165,6 +176,8 @@ class ClassroomsController extends Controller
 
     public function restore($id)
     {
+        // $this->authorize('update', [Classwork::class, $classroom]);
+
         $classroom = Classroom::onlyTrashed()->findOrFail($id);
         $classroom->restore();
 
@@ -183,5 +196,12 @@ class ClassroomsController extends Controller
         return redirect()
             ->route('classroom.trashed')
             ->with('success', __("Classroom $classroom->name Deleted forever!"));
+    }
+
+    public function chat(Classroom $classroom)
+    {
+        return view('classrooms.chat', [
+            'classroom' => $classroom,
+        ]);
     }
 }

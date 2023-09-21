@@ -17,10 +17,15 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-
-Broadcast::channel('classroom.{id}' , function($user, $id){
-    return $user->classrooms()->where('id' , $id)->exists();
+Broadcast::channel('classroom-{id}', function ($user, $id) {
+    if ($user->classrooms()->where('id', $id)->exists()) {
+        return ['id' => $user->id, 'name' => $user->name];
+    };
 });
+
+// Broadcast::channel('classroom.{id}', function ($user, $id) {
+//     return $user->classrooms()->where('id', $id)->exists();
+// });
 
 // Broadcast::channel('Classwork.{id}.submitted' , function($user, $id){
 //     return $user->classrooms()->where('id' , $id)->exists();

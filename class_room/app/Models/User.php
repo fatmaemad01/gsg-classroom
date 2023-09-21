@@ -70,6 +70,10 @@ class User extends Authenticatable implements MustVerifyEmail
             ->withPivot(['role', 'created_at']);
     }
 
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
 
     // One to many => relation between owner of the classroom
     public function createdClassroom()
@@ -105,6 +109,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Profile::class, 'user_id', 'id')->withDefault(); // with hasOne and belongsTo
     }
 
+    public function receivedMessages()
+    {
+        return $this->morphMany(Message::class, 'recipient');
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
 
     // this is default when felid name is email, but if we have another felid name we must define it
     public function routeNotificationForMail($notification = null)
@@ -123,5 +137,3 @@ class User extends Authenticatable implements MustVerifyEmail
         return '021548745';
     }
 }
-
-

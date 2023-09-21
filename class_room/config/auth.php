@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
     ],
 
     /*
@@ -66,7 +70,11 @@ return [
             'model' => App\Models\User::class,
         ],
 
-        // if we need to use database directly 
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
+        ],
+        // if we need to use database directly
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
@@ -96,9 +104,17 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_reset_tokens',
-            'expire' => 60,  // time in minute which the token will be able to request link 
+            'expire' => 60,  // time in minute which the token will be able to request link
             'throttle' => 60,   // time in second which the user can request another link
         ],
+
+        'admins' => [
+            'provider' => 'admins',
+            'table' => 'password_reset_tokens',
+            'expire' => 30,  // time in minute which the token will be able to request link
+            'throttle' => 300,   // time in second which the user can request another link
+        ],
+
     ],
 
     /*

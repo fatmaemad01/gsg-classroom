@@ -1,9 +1,24 @@
 <x-main-layout title="Topic">
-    <x-secondary-nav :id="$classroom->id" />
-    <div class="container m-5">
+    <x-secondary-nav>
+        <li class="nav-item active">
+            <a class="nav-link text-success" href="{{ route('classroom.show', $classroom->id) }}">
+                Stream
+            </a>
+        </li>
+        <li class="nav-item ">
+            <a class="nav-link text-success" href="{{ route('classrooms.classworks.index', $classroom->id) }}">
+                Classworks
+            </a>
+        </li>
+        <li class="nav-item ">
+            <a class="nav-link text-success" href="{{ route('classroom.people', $classroom->id) }}">
+                People
+            </a>
+        </li>
+    </x-secondary-nav>
+    <div class="">
         <div class="row">
-            <div class="col-1"></div>
-            <div class="col-1 mt-5">
+            <div class="col-1 mt-5 ms-3">
                 <a href="{{ route('topics.index', [$classroom->id]) }}" class="text-success fw-bold"
                     style="font-size: 15px;">
                     All Topics
@@ -22,7 +37,8 @@
                 @forelse($classworks as $group)
                     <div class="head d-flex justify-content-between mt-5">
                         <h3 class="text-success mx-4 "> {{ $group->first()->topic->name }}</h3>
-                        <x-more isTopic="{{ true }}" :name="$group->first()->topic->name" :id="$group->first()->topic->id"
+                        <x-more isTopic="{{ true }}" :name="$group->first()->topic->name"
+                            id="topic{{ $group->first()->topic->id }}"
                             deleteRoute="{{ route('topics.destroy', $group->first()->topic->id) }}"
                             updateRoute="{{ route('topics.update', $group->first()->topic->id) }}" />
                     </div>
@@ -31,22 +47,23 @@
                         <div class="d-flex justify-content-between" style="font-size: 13px">
                             <a class=" d-flex col-10 " style="background-color: #fff"
                                 href="{{ route('classrooms.classworks.show', [$classroom->id, $classwork->id]) }}">
-                                <i class="fas fa-file-lines mx-4 "
-                                    style="font-size: 22px; color:rgb(193, 196, 199)"></i>
+                                <i class="fa fa-file mx-4 " style="font-size: 22px; color:rgb(193, 196, 199)"></i>
                                 <p class="text-secondary fw-bold" style="font-size: 15px">
                                     {{ $classwork->stream->content }}
                                 </p>
                             </a>
                             <div class="ms-1">
-                                <x-more :id="$classwork->id" :name="$classwork->title"
-                                    deleteRoute="{{ route('classrooms.classworks.destroy', [$classwork->classroom_id, $classwork->id]) }}"
-                                    updateRoute="{{ route('classrooms.classworks.update', [$classwork->classroom_id, $classwork->id]) }}">
-                                    <h5 class="text-center m-3">Update {{ $classwork->title }}</h5>
-                                    @include('classworks._form', [
-                                        'type' => $classwork->type->value,
-                                        'button' => 'Edit',
-                                    ])
-                                </x-more>
+                                @can('update', ['App\Models\Classwork', $classwork])
+                                    <x-more :id="$classwork->id" :name="$classwork->title"
+                                        deleteRoute="{{ route('classrooms.classworks.destroy', [$classwork->classroom_id, $classwork->id]) }}"
+                                        updateRoute="{{ route('classrooms.classworks.update', [$classwork->classroom_id, $classwork->id]) }}">
+                                        <h5 class="text-center m-3">Update {{ $classwork->title }}</h5>
+                                        @include('classworks._form', [
+                                            'type' => $classwork->type->value,
+                                            'button' => 'Edit',
+                                        ])
+                                    </x-more>
+                                @endcan
                             </div>
                         </div>
                     @endforeach

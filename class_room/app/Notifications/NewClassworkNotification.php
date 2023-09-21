@@ -13,7 +13,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\VonageMessage;
 
 
-class NewClassworkNotification extends Notification
+class NewClassworkNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -22,7 +22,7 @@ class NewClassworkNotification extends Notification
      */
     public function __construct(protected Classwork $classwork)
     {
-        //
+        $this->onQueue('notifications');
     }
 
     /**
@@ -37,8 +37,8 @@ class NewClassworkNotification extends Notification
         $via = [
             'database',
             // HadaraSmsChannel::class,
-            'mail',
-            'broadcast',
+            // 'mail',
+            // 'broadcast',
             // 'vonage'
         ];
         return $via;

@@ -152,7 +152,7 @@ class Classroom extends Model
 
         // attach insert to pivot table using relation
         return
-        // Classroom model, when need to insert data to pivot table (classroom_user)
+            // Classroom model, when need to insert data to pivot table (classroom_user)
             $this->users()->attach($user_id, [
                 'role' => $role,
                 'created_at' => now()
@@ -199,5 +199,10 @@ class Classroom extends Model
     public function getUrlAttribute()
     {
         return route('classroom.show', $this->id);
+    }
+
+    public function messages()
+    {
+        return $this->morphMany(Message::class, 'recipient');
     }
 }

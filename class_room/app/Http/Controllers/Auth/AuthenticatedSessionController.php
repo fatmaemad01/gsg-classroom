@@ -41,7 +41,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->invalidate();     // delete session data
 
-        $request->session()->regenerateToken();    
+        $request->session()->regenerateToken();
 
         return redirect('/');
     }

@@ -1,13 +1,18 @@
     <nav class="navbar navbar-light" style="height: 75px;">
-        <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions"
-            aria-controls="offcanvasWithBothOptions">
-            <i class="fas fa-bars fa-lg ms-4 me-3"></i>
-            <img class="ps-1" src="https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
-                alt="" />
-            <div class="fs-5 pt-2" style="display: inline; color: #5f6368">
-                Classroom
-            </div>
-        </button>
+        <div class="d-flex justify-content-start">
+            <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions"
+                aria-controls="offcanvasWithBothOptions">
+                <i class="fas fa-bars fa-lg ms-4 me-2"></i>
+            </button>
+            <a href="{{ route('classroom.index')}}">
+                <img class="ps-1 mb-1" src="https://www.gstatic.com/classroom/logo_square_rounded.svg" alt=""
+                    height="30px" width="37px" />
+                <div class="ps-2 pt-1 text-success" style="display: inline; font-size:22px">
+                    Classroom
+                </div>
+            </a>
+        </div>
+
 
         <div class="content">
             {{ $slot }}
@@ -26,7 +31,7 @@
             </div>
             <div class="offcanvas-body">
                 <ul class="nav">
-                    <li >
+                    <li>
                         <a href="{{ route('classroom.index') }}" class="btn nav-item">
                             <div class="item d-flex justify-content-between">
                                 <i class="fas fa-home menu-icon"></i>
@@ -34,7 +39,7 @@
                             </div>
                         </a>
                     </li>
-                    <li >
+                    <li>
                         <a href="{{ route('classroom.create') }}" class="btn nav-item">
                             <div class="item d-flex justify-content-between">
                                 <i class="fas fa-plus menu-icon"></i>
@@ -42,15 +47,16 @@
                             </div>
                         </a>
                     </li>
-                    <li >
+                    <li>
                         <a href="{{ route('classroom.trashed') }}" class="btn nav-item">
                             <div class="item d-flex justify-content-between">
                                 <i class="fas fa-trash menu-icon"></i>
-                                <span class="menu-title " style="margin-top: 11px; ">{{ __('Trashed Classrooms') }}</span>
+                                <span class="menu-title "
+                                    style="margin-top: 11px; ">{{ __('Trashed Classrooms') }}</span>
                             </div>
                         </a>
                     </li>
-                    <li >
+                    <li>
                         <a href="{{ route('profile.edit') }}" class="btn nav-item">
                             <div class="item d-flex justify-content-between">
                                 <i class="fas fa-gear menu-icon"></i>
